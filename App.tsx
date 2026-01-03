@@ -8,6 +8,7 @@ import { Tours } from './pages/Tours';
 import { TourDetail } from './pages/TourDetail';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
+import { Gallery } from './pages/Gallery';
 
 // ScrollToTop Component
 const ScrollToTop = () => {
@@ -31,6 +32,7 @@ const App: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/tours" element={<Tours />} />
             <Route path="/tours/:id" element={<TourDetail />} />
+            <Route path="/gallery" element={<Gallery />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<div className="h-screen flex items-center justify-center text-3xl font-serif">404 - Not Found</div>} />

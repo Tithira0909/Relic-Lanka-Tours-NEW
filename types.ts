@@ -15,6 +15,7 @@ export interface Tour {
   location: string;
   price: number;
   days: number;
+  nights: number;
   category: 'Nature' | 'Culture' | 'Luxury' | 'Adventure';
   rating: number;
   reviews: number;

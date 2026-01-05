@@ -282,7 +282,7 @@ export const Gallery: React.FC = () => {
       {/* Intro Text */}
       <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none z-20 mix-blend-difference text-white">
         <h1 ref={introTextRef1} className="spotlight-intro-text text-[12vw] font-serif leading-none whitespace-nowrap">
-          CEYLON
+          RELIC LANKA
         </h1>
         <h1 ref={introTextRef2} className="spotlight-intro-text text-[12vw] font-serif leading-none italic whitespace-nowrap text-ceylon-300">
           GALLERY

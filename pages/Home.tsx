@@ -38,7 +38,7 @@ export const Home: React.FC = () => {
               Explore the Wonder of Asia
             </span>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold mb-6 leading-tight">
-              Unveil the Soul <br/> of <span className="italic text-ceylon-300">Ceylon</span>
+              Unveil the Soul <br/> of <span className="italic text-ceylon-300">Sri Lanka</span>
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
               Experience pristine beaches, ancient ruins, and misty mountains. Curated luxury journeys tailored just for you.
@@ -130,7 +130,7 @@ export const Home: React.FC = () => {
                viewport={{ once: true }}
                transition={{ duration: 0.8, delay: 0.2 }}
              >
-               <span className="text-ceylon-700 font-semibold tracking-wider text-sm uppercase block mb-4">Why Ceylon?</span>
+               <span className="text-ceylon-700 font-semibold tracking-wider text-sm uppercase block mb-4">Why Relic Lanka?</span>
                <h2 className="text-4xl md:text-6xl font-serif font-medium text-primary mb-8">
                  A Land Like <br/> No Other
                </h2>
@@ -189,7 +189,7 @@ export const Home: React.FC = () => {
       <Section className="bg-paper rounded-[3rem] my-10">
          <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-4xl font-serif font-medium text-primary mb-4">Traveler Stories</h2>
-            <p className="text-gray-500">Hear from those who have experienced the magic of Ceylon with us.</p>
+            <p className="text-gray-500">Hear from those who have experienced the magic of Sri Lanka with us.</p>
          </div>
          
          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

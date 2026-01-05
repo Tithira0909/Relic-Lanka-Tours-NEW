@@ -25,7 +25,7 @@ export const About: React.FC = () => {
               We are committed to preserving the natural beauty of our island. Our tours prioritize eco-friendly lodges, support local conservation efforts, and ensure fair wages for all our community partners.
             </p>
             <p className="text-gray-600 leading-relaxed">
-              When you travel with Ceylon, you leave a positive footprint.
+               When you travel with Relic Lanka Tours, you leave a positive footprint.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">

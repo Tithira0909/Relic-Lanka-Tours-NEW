@@ -19,7 +19,7 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="md:col-span-1">
             <Link to="/" className="text-3xl font-serif font-bold tracking-tighter text-primary mb-6 block">
-              CEYLON<span className="text-ceylon-700">.</span>
+              Relic Lanka Tours
             </Link>
             <p className="text-gray-500 mb-6 leading-relaxed">
               Curating exceptional journeys through the paradise island of Sri Lanka. Luxury, culture, and nature combined.
@@ -68,7 +68,7 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex items-center">
                 <Mail className="w-5 h-5 mr-3 text-ceylon-700 flex-shrink-0" />
-                <span>hello@ceylon.travel</span>
+                <span>hello@reliclankatours.com</span>
               </li>
               <li className="flex items-center">
                 <Phone className="w-5 h-5 mr-3 text-ceylon-700 flex-shrink-0" />
@@ -79,7 +79,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} Ceylon Travel. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Relic Lanka Tours. All rights reserved.</p>
           <div className="mt-4 md:mt-0">
             Designed with <span className="text-red-400">♥</span> in Sri Lanka
           </div>

@@ -3,14 +3,40 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const db = require('./db.cjs');
+const multer = require('multer');
+const path = require('path');
+// const db = require('./db.cjs'); // SQLite
+const db = require('./db_mysql.cjs'); // MySQL
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const app = express();
-const PORT = 3001;
-const SECRET_KEY = 'supersecretkey'; // In production, use environment variable
+const PORT = process.env.PORT || 3001;
+const SECRET_KEY = process.env.JWT_SECRET || 'supersecretkey';
+
+// Initialize DB
+db.init();
 
 app.use(cors());
 app.use(bodyParser.json());
+
+// Serve uploaded images statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Configure Multer
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'server/uploads/');
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
+
 
 // Auth Middleware
 const authenticateToken = (req, res, next) => {
@@ -27,48 +53,71 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Login Route
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
-  db.get("SELECT * FROM users WHERE username = ?", [username], (err, user) => {
-    if (err) return res.status(500).send(err.message);
-    if (!user) return res.status(400).send('User not found');
+  try {
+      const users = await db.query("SELECT * FROM users WHERE username = ?", [username]);
+      const user = users[0];
 
-    const validPassword = bcrypt.compareSync(password, user.password);
-    if (!validPassword) return res.status(400).send('Invalid password');
+      if (!user) return res.status(400).send('User not found');
 
-    const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
-    res.json({ token });
-  });
+      const validPassword = bcrypt.compareSync(password, user.password);
+      if (!validPassword) return res.status(400).send('Invalid password');
+
+      const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
+      res.json({ token });
+  } catch (err) {
+      res.status(500).send(err.message);
+  }
 });
+
+// Upload Route
+app.post('/api/upload', authenticateToken, upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
+    // Return relative URL for the frontend
+    const imageUrl = `/api/uploads/${req.file.filename}`;
+    res.json({ imageUrl });
+});
+
+// Proxy logic on frontend redirects /api/uploads to /uploads here if configured,
+// OR we serve at /api/uploads if we want consistency.
+// Let's serve static files at /api/uploads to match the return URL logic easily
+// But wait, express static usually serves from root.
+// If I use `app.use('/api/uploads', express.static(...))` it works.
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // -- Tours --
 
 // Get All Tours
-app.get('/api/tours', (req, res) => {
-  db.all("SELECT * FROM tours", [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    // Parse JSON fields
-    const tours = rows.map(row => ({
-        ...row,
-        highlights: JSON.parse(row.highlights),
-        inclusions: JSON.parse(row.inclusions),
-        includedActivities: JSON.parse(row.includedActivities),
-        destinations: JSON.parse(row.destinations),
-        activities: JSON.parse(row.activities),
-        itinerary: JSON.parse(row.itinerary)
-    }));
-    res.json(tours);
-  });
+app.get('/api/tours', async (req, res) => {
+  try {
+      const rows = await db.query("SELECT * FROM tours");
+      const tours = rows.map(row => ({
+            ...row,
+            highlights: typeof row.highlights === 'string' ? JSON.parse(row.highlights) : row.highlights,
+            inclusions: typeof row.inclusions === 'string' ? JSON.parse(row.inclusions) : row.inclusions,
+            includedActivities: typeof row.includedActivities === 'string' ? JSON.parse(row.includedActivities) : row.includedActivities,
+            destinations: typeof row.destinations === 'string' ? JSON.parse(row.destinations) : row.destinations,
+            activities: typeof row.activities === 'string' ? JSON.parse(row.activities) : row.activities,
+            itinerary: typeof row.itinerary === 'string' ? JSON.parse(row.itinerary) : row.itinerary
+      }));
+      res.json(tours);
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
 });
 
 // Create Tour (Protected)
-app.post('/api/tours', authenticateToken, (req, res) => {
+app.post('/api/tours', authenticateToken, async (req, res) => {
   const t = req.body;
-  const stmt = db.prepare(`INSERT INTO tours VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+  const sql = `INSERT INTO tours VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   try {
-      stmt.run(
+      await db.query(sql, [
         t.id, t.title, t.location, t.price, t.days, t.nights, t.category, t.rating || 5, t.reviews || 0,
         t.image, t.description,
         JSON.stringify(t.highlights || []),
@@ -77,8 +126,7 @@ app.post('/api/tours', authenticateToken, (req, res) => {
         JSON.stringify(t.destinations || []),
         JSON.stringify(t.activities || []),
         JSON.stringify(t.itinerary || [])
-      );
-      stmt.finalize();
+      ]);
       res.status(201).json(t);
   } catch (err) {
       res.status(500).json({ error: err.message });
@@ -86,7 +134,7 @@ app.post('/api/tours', authenticateToken, (req, res) => {
 });
 
 // Update Tour (Protected)
-app.put('/api/tours/:id', authenticateToken, (req, res) => {
+app.put('/api/tours/:id', authenticateToken, async (req, res) => {
   const t = req.body;
   const { id } = req.params;
 
@@ -96,75 +144,93 @@ app.put('/api/tours/:id', authenticateToken, (req, res) => {
     includedActivities = ?, destinations = ?, activities = ?, itinerary = ?
     WHERE id = ?`;
 
-  db.run(sql, [
-    t.title, t.location, t.price, t.days, t.nights, t.category,
-    t.image, t.description,
-    JSON.stringify(t.highlights || []),
-    JSON.stringify(t.inclusions || []),
-    JSON.stringify(t.includedActivities || []),
-    JSON.stringify(t.destinations || []),
-    JSON.stringify(t.activities || []),
-    JSON.stringify(t.itinerary || []),
-    id
-  ], function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: "Tour updated", changes: this.changes });
-  });
+  try {
+      const result = await db.query(sql, [
+        t.title, t.location, t.price, t.days, t.nights, t.category,
+        t.image, t.description,
+        JSON.stringify(t.highlights || []),
+        JSON.stringify(t.inclusions || []),
+        JSON.stringify(t.includedActivities || []),
+        JSON.stringify(t.destinations || []),
+        JSON.stringify(t.activities || []),
+        JSON.stringify(t.itinerary || []),
+        id
+      ]);
+      res.json({ message: "Tour updated", changes: result.affectedRows });
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
 });
 
 // Delete Tour (Protected)
-app.delete('/api/tours/:id', authenticateToken, (req, res) => {
+app.delete('/api/tours/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
-    db.run("DELETE FROM tours WHERE id = ?", id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Tour deleted", changes: this.changes });
-    });
+    try {
+        const result = await db.query("DELETE FROM tours WHERE id = ?", [id]);
+        res.json({ message: "Tour deleted", changes: result.affectedRows });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // -- Gallery --
 
-app.get('/api/gallery', (req, res) => {
-    db.all("SELECT * FROM gallery", [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
+app.get('/api/gallery', async (req, res) => {
+    try {
+        const rows = await db.query("SELECT * FROM gallery");
         res.json(rows);
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-app.post('/api/gallery', authenticateToken, (req, res) => {
+app.post('/api/gallery', authenticateToken, async (req, res) => {
     const { id, url, caption } = req.body;
-    db.run("INSERT INTO gallery (id, url, caption) VALUES (?, ?, ?)", [id, url, caption], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
+    try {
+        await db.query("INSERT INTO gallery (id, url, caption) VALUES (?, ?, ?)", [id, url, caption]);
         res.status(201).json({ id, url, caption });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-app.delete('/api/gallery/:id', authenticateToken, (req, res) => {
-    db.run("DELETE FROM gallery WHERE id = ?", req.params.id, (err) => {
-        if (err) return res.status(500).json({ error: err.message });
+app.delete('/api/gallery/:id', authenticateToken, async (req, res) => {
+    try {
+        await db.query("DELETE FROM gallery WHERE id = ?", [req.params.id]);
         res.json({ message: "Image deleted" });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // -- Settings --
 
-app.get('/api/settings', (req, res) => {
-    db.all("SELECT * FROM settings", [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
+app.get('/api/settings', async (req, res) => {
+    try {
+        const rows = await db.query("SELECT * FROM settings");
         const settings = {};
-        rows.forEach(row => settings[row.key] = row.value);
+        rows.forEach(row => settings[row.settings_key] = row.value);
         res.json(settings);
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-app.post('/api/settings', authenticateToken, (req, res) => {
-    const settings = req.body; // Expect { key: value, key2: value2 }
-    const stmt = db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)");
-
-    Object.keys(settings).forEach(key => {
-        stmt.run(key, settings[key]);
-    });
-    stmt.finalize();
-    res.json({ message: "Settings updated" });
+app.post('/api/settings', authenticateToken, async (req, res) => {
+    const settings = req.body;
+    try {
+        // MySQL REPLACE INTO syntax works if primary key exists
+        // Or ON DUPLICATE KEY UPDATE
+        for (const key of Object.keys(settings)) {
+            await db.query(
+                "INSERT INTO settings (settings_key, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = ?",
+                [key, settings[key], settings[key]]
+            );
+        }
+        res.json({ message: "Settings updated" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 

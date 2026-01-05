@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
 import { Tour, TourDestination, TourActivity } from '../../types';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { ImageUpload } from '../../components/common/ImageUpload';
 
 export const TourForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -185,8 +186,8 @@ export const TourForm: React.FC = () => {
                 <input required type="number" name="nights" value={formData.nights} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" />
             </div>
              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Main Image URL</label>
-                <input required name="image" value={formData.image} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Main Image</label>
+                <ImageUpload value={formData.image} onChange={(url) => setFormData(prev => ({ ...prev, image: url }))} />
             </div>
              <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -251,7 +252,7 @@ export const TourForm: React.FC = () => {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input placeholder="Name" value={dest.name} onChange={(e) => handleDestinationChange(idx, 'name', e.target.value)} className="px-4 py-2 border rounded-lg" />
-                            <input placeholder="Image URL" value={dest.image} onChange={(e) => handleDestinationChange(idx, 'image', e.target.value)} className="px-4 py-2 border rounded-lg" />
+                            <ImageUpload placeholder="Destination Image" value={dest.image} onChange={(url) => handleDestinationChange(idx, 'image', url)} />
                             <input placeholder="Description" value={dest.description} onChange={(e) => handleDestinationChange(idx, 'description', e.target.value)} className="col-span-2 px-4 py-2 border rounded-lg" />
                         </div>
                     </div>
@@ -270,7 +271,7 @@ export const TourForm: React.FC = () => {
                         </div>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input placeholder="Name" value={act.name} onChange={(e) => handleActivityChange(idx, 'name', e.target.value)} className="px-4 py-2 border rounded-lg" />
-                            <input placeholder="Image URL" value={act.image} onChange={(e) => handleActivityChange(idx, 'image', e.target.value)} className="px-4 py-2 border rounded-lg" />
+                            <ImageUpload placeholder="Activity Image" value={act.image} onChange={(url) => handleActivityChange(idx, 'image', url)} />
                         </div>
                     </div>
                 ))}

@@ -17,6 +17,7 @@ interface DataContextType extends AppData {
   addToGallery: (image: GalleryImage) => Promise<void>;
   removeFromGallery: (id: string) => Promise<void>;
   updateHeroImages: (images: string[]) => Promise<void>;
+  updateWhyChooseUsImages: (images: string[]) => Promise<void>;
   loading: boolean;
 }
 
@@ -29,6 +30,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     socialMedia: INITIAL_SOCIAL_MEDIA,
     gallery: [],
     heroImages: [],
+    whyChooseUsImages: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -65,7 +67,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   twitter: settings.twitter,
                   youtube: settings.youtube
               },
-              heroImages: settings.hero_images ? JSON.parse(settings.hero_images) : []
+              heroImages: settings.hero_images ? JSON.parse(settings.hero_images) : [],
+              whyChooseUsImages: settings.why_choose_us_images ? JSON.parse(settings.why_choose_us_images) : []
           }));
       } catch (err) {
           console.error(err);
@@ -109,6 +112,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (e) {
           console.error(e);
       }
+  };
+
+  const updateWhyChooseUsImages = async (images: string[]) => {
+    try {
+        const res = await fetch('/api/settings', {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify({ why_choose_us_images: JSON.stringify(images) })
+        });
+        if (res.ok) {
+            fetchSettings();
+        }
+    } catch (e) {
+        console.error(e);
+    }
   };
 
   const updateTour = async (updatedTour: Tour) => {
@@ -195,6 +213,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addToGallery,
         removeFromGallery,
         updateHeroImages,
+        updateWhyChooseUsImages,
         loading
       }}
     >

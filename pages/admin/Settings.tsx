@@ -4,14 +4,16 @@ import { ImageUpload } from '../../components/common/ImageUpload';
 import { Trash2 } from 'lucide-react';
 
 export const Settings: React.FC = () => {
-  const { socialMedia, heroImages, updateSocialMedia, updateHeroImages } = useData();
+  const { socialMedia, heroImages, whyChooseUsImages, updateSocialMedia, updateHeroImages, updateWhyChooseUsImages } = useData();
   const [formData, setFormData] = useState(socialMedia);
   const [localHeroImages, setLocalHeroImages] = useState<string[]>([]);
+  const [localWhyChooseUsImages, setLocalWhyChooseUsImages] = useState<string[]>([]);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
       setLocalHeroImages(heroImages);
-  }, [heroImages]);
+      setLocalWhyChooseUsImages(whyChooseUsImages);
+  }, [heroImages, whyChooseUsImages]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,6 +24,7 @@ export const Settings: React.FC = () => {
     e.preventDefault();
     updateSocialMedia(formData);
     updateHeroImages(localHeroImages);
+    updateWhyChooseUsImages(localWhyChooseUsImages);
     setMessage('Settings updated successfully!');
     setTimeout(() => setMessage(''), 3000);
   };
@@ -36,11 +39,23 @@ export const Settings: React.FC = () => {
       setLocalHeroImages(localHeroImages.filter((_, i) => i !== index));
   };
 
+  const addWhyChooseUsImage = (url: string) => {
+      if (url && localWhyChooseUsImages.length < 5) {
+          setLocalWhyChooseUsImages([...localWhyChooseUsImages, url]);
+      }
+  };
+
+  const removeWhyChooseUsImage = (index: number) => {
+      setLocalWhyChooseUsImages(localWhyChooseUsImages.filter((_, i) => i !== index));
+  };
+
   return (
     <div>
       <h1 className="text-3xl font-serif font-bold text-gray-800 mb-8">Settings</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      {/* Social Media */}
       <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
         <h2 className="text-xl font-bold mb-6">Social Media Links</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -109,32 +124,64 @@ export const Settings: React.FC = () => {
         </form>
       </div>
 
-      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-        <h2 className="text-xl font-bold mb-6">Hero Images</h2>
-        <p className="text-sm text-gray-500 mb-4">Upload up to 5 images for the homepage slider. They will cycle randomly.</p>
+      <div className="space-y-8">
+        {/* Hero Images */}
+        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+            <h2 className="text-xl font-bold mb-6">Hero Images</h2>
+            <p className="text-sm text-gray-500 mb-4">Upload up to 5 images for the homepage slider. They will cycle randomly.</p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            {localHeroImages.map((url, idx) => (
-                <div key={idx} className="relative group rounded-lg overflow-hidden h-32 border border-gray-200">
-                    <img src={url} alt={`Hero ${idx}`} className="w-full h-full object-cover" />
-                    <button
-                        type="button"
-                        onClick={() => removeHeroImage(idx)}
-                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                        <Trash2 size={16} />
-                    </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                {localHeroImages.map((url, idx) => (
+                    <div key={idx} className="relative group rounded-lg overflow-hidden h-32 border border-gray-200">
+                        <img src={url} alt={`Hero ${idx}`} className="w-full h-full object-cover" />
+                        <button
+                            type="button"
+                            onClick={() => removeHeroImage(idx)}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+                ))}
+            </div>
+
+            {localHeroImages.length < 5 && (
+                <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Add New Image</label>
+                    <ImageUpload value="" onChange={addHeroImage} placeholder="Upload hero image..." />
                 </div>
-            ))}
+            )}
         </div>
 
-        {localHeroImages.length < 5 && (
-            <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Add New Image</label>
-                <ImageUpload value="" onChange={addHeroImage} placeholder="Upload hero image..." />
+        {/* Why Choose Us Images */}
+        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+            <h2 className="text-xl font-bold mb-6">"Why Relic Lanka" Images</h2>
+            <p className="text-sm text-gray-500 mb-4">Upload up to 5 images for the 'Experience' section. They will cycle randomly.</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                {localWhyChooseUsImages.map((url, idx) => (
+                    <div key={idx} className="relative group rounded-lg overflow-hidden h-32 border border-gray-200">
+                        <img src={url} alt={`Why Us ${idx}`} className="w-full h-full object-cover" />
+                        <button
+                            type="button"
+                            onClick={() => removeWhyChooseUsImage(idx)}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+                ))}
             </div>
-        )}
+
+            {localWhyChooseUsImages.length < 5 && (
+                <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Add New Image</label>
+                    <ImageUpload value="" onChange={addWhyChooseUsImage} placeholder="Upload image..." />
+                </div>
+            )}
+        </div>
       </div>
+
       </div>
     </div>
   );

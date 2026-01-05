@@ -5,8 +5,21 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
-// const db = require('./db.cjs'); // SQLite
-const db = require('./db_mysql.cjs'); // MySQL
+const fs = require('fs');
+
+/**
+ * DATABASE CONFIGURATION
+ *
+ * By default, this application uses SQLite for ease of setup and testing.
+ * To use MySQL:
+ * 1. Ensure you have a MySQL server running and a database created.
+ * 2. Configure the .env file with DB_HOST, DB_USER, DB_PASSWORD, and DB_NAME.
+ * 3. Comment out `const db = require('./db.cjs');`
+ * 4. Uncomment `const db = require('./db_mysql.cjs');`
+ */
+const db = require('./db.cjs'); // SQLite
+// const db = require('./db_mysql.cjs'); // MySQL
+
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -16,18 +29,26 @@ const PORT = process.env.PORT || 3001;
 const SECRET_KEY = process.env.JWT_SECRET || 'supersecretkey';
 
 // Initialize DB
-db.init();
+if (db.init) {
+    db.init();
+}
 
 app.use(cors());
 app.use(bodyParser.json());
 
+// Ensure uploads directory exists
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
 // Serve uploaded images statically
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 // Configure Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'server/uploads/');
+        cb(null, UPLOADS_DIR);
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);

@@ -12,14 +12,20 @@ import { TESTIMONIALS } from '../data/mockData';
 import { useState, useEffect } from 'react';
 
 export const Home: React.FC = () => {
-  const { tours, heroImages } = useData();
+  const { tours, heroImages, whyChooseUsImages } = useData();
   const featuredTours = tours.slice(0, 3);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+  const [currentWhyIndex, setCurrentWhyIndex] = useState(0);
 
   // Fallback hero images if none uploaded
   const displayImages = heroImages.length > 0
       ? heroImages
       : ['https://picsum.photos/1920/1080?random=99'];
+
+  // Fallback Why images
+  const displayWhyImages = whyChooseUsImages.length > 0
+      ? whyChooseUsImages
+      : ['https://picsum.photos/600/800?random=50'];
 
   useEffect(() => {
     if (displayImages.length <= 1) return;
@@ -30,6 +36,16 @@ export const Home: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [displayImages]);
+
+  useEffect(() => {
+    if (displayWhyImages.length <= 1) return;
+
+    const interval = setInterval(() => {
+        setCurrentWhyIndex(prev => (prev + 1) % displayWhyImages.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [displayWhyImages]);
 
   return (
     <div className="w-full overflow-hidden">
@@ -126,13 +142,22 @@ export const Home: React.FC = () => {
                viewport={{ once: true }}
                transition={{ duration: 0.8 }}
              >
-                <div className="relative">
-                  <img 
-                    src="https://picsum.photos/600/800?random=50" 
-                    alt="Tea Plantation" 
-                    className="rounded-3xl shadow-2xl object-cover h-[600px] w-full"
-                  />
-                  <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-white rounded-3xl p-6 shadow-xl hidden md:block">
+                <div className="relative h-[600px] w-full">
+                   <div className="absolute inset-0 rounded-3xl shadow-2xl overflow-hidden">
+                      <AnimatePresence mode="wait">
+                          <motion.img
+                            key={currentWhyIndex}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 1 }}
+                            src={displayWhyImages[currentWhyIndex]}
+                            alt="Experience Sri Lanka"
+                            className="w-full h-full object-cover absolute inset-0"
+                          />
+                      </AnimatePresence>
+                   </div>
+                  <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-white rounded-3xl p-6 shadow-xl hidden md:block z-10">
                      <p className="font-serif text-2xl italic text-gray-800 leading-snug mb-4">
                        "Sri Lanka is not just a destination; it's a feeling that stays with you forever."
                      </p>

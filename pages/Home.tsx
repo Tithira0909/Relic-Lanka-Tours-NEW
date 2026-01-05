@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Star, PlayCircle, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
@@ -9,9 +9,27 @@ import { TourCard } from '../components/features/TourCard';
 import { SriLankaMap } from '../components/features/SriLankaMap';
 import { TESTIMONIALS } from '../data/mockData';
 
+import { useState, useEffect } from 'react';
+
 export const Home: React.FC = () => {
-  const { tours } = useData();
+  const { tours, heroImages } = useData();
   const featuredTours = tours.slice(0, 3);
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+
+  // Fallback hero images if none uploaded
+  const displayImages = heroImages.length > 0
+      ? heroImages
+      : ['https://picsum.photos/1920/1080?random=99'];
+
+  useEffect(() => {
+    if (displayImages.length <= 1) return;
+
+    const interval = setInterval(() => {
+        setCurrentHeroIndex(prev => (prev + 1) % displayImages.length);
+    }, 5000); // Change every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [displayImages]);
 
   return (
     <div className="w-full overflow-hidden">
@@ -19,12 +37,19 @@ export const Home: React.FC = () => {
       <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="https://picsum.photos/1920/1080?random=99" 
-            alt="Sri Lanka Coast" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+          <AnimatePresence mode="wait">
+              <motion.img
+                key={currentHeroIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1 }}
+                src={displayImages[currentHeroIndex]}
+                alt="Sri Lanka Coast"
+                className="w-full h-full object-cover absolute inset-0"
+              />
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60 z-10" />
         </div>
 
         {/* Content */}

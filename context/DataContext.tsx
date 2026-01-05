@@ -16,6 +16,7 @@ interface DataContextType extends AppData {
   updateSocialMedia: (social: SocialMedia) => Promise<void>;
   addToGallery: (image: GalleryImage) => Promise<void>;
   removeFromGallery: (id: string) => Promise<void>;
+  updateHeroImages: (images: string[]) => Promise<void>;
   loading: boolean;
 }
 
@@ -27,6 +28,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     tours: [],
     socialMedia: INITIAL_SOCIAL_MEDIA,
     gallery: [],
+    heroImages: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +64,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   whatsapp: settings.whatsapp || '',
                   twitter: settings.twitter,
                   youtube: settings.youtube
-              }
+              },
+              heroImages: settings.hero_images ? JSON.parse(settings.hero_images) : []
           }));
       } catch (err) {
           console.error(err);
@@ -91,6 +94,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (e) {
         console.error(e);
     }
+  };
+
+  const updateHeroImages = async (images: string[]) => {
+      try {
+          const res = await fetch('/api/settings', {
+              method: 'POST',
+              headers: authHeaders,
+              body: JSON.stringify({ hero_images: JSON.stringify(images) })
+          });
+          if (res.ok) {
+              fetchSettings();
+          }
+      } catch (e) {
+          console.error(e);
+      }
   };
 
   const updateTour = async (updatedTour: Tour) => {
@@ -176,6 +194,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateSocialMedia,
         addToGallery,
         removeFromGallery,
+        updateHeroImages,
         loading
       }}
     >

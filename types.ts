@@ -70,4 +70,5 @@ export interface AppData {
   tours: Tour[];
   socialMedia: SocialMedia;
   gallery: GalleryImage[];
+  heroImages: string[];
 }

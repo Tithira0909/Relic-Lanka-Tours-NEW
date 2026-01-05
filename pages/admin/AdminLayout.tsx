@@ -71,8 +71,13 @@ export const AdminLayout: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto p-8">
-        <Outlet />
+      <div className="flex-1 overflow-auto p-8 relative">
+        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
+             <img src="/assets/logo.png" alt="Watermark" className="w-[600px] h-[600px] object-contain grayscale" />
+        </div>
+        <div className="relative z-10">
+             <Outlet />
+        </div>
       </div>
     </div>
   );

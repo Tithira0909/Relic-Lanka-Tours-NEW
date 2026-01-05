@@ -6,7 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
-import { WhatsAppBubble } from './components/features/WhatsAppBubble';
+import { WhatsAppBubble } from './components/common/WhatsAppBubble';
 
 import { Home } from './pages/Home';
 import { Tours } from './pages/Tours';

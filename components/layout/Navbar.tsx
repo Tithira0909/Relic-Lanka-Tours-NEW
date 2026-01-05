@@ -41,11 +41,7 @@ export const Navbar: React.FC = () => {
       >
         <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-             {/* Placeholder for Logo */}
-             <div className="w-10 h-10 bg-ceylon-100 rounded-full flex items-center justify-center text-ceylon-700 font-bold text-xs overflow-hidden">
-                {/* <img src="/path-to-logo.png" alt="Logo" className="w-full h-full object-cover" /> */}
-                LOGO
-             </div>
+             <img src="/assets/logo.png" alt="Relic Lanka Tours" className="h-10 w-auto object-contain" />
              <span className="text-xl md:text-2xl font-serif font-semibold tracking-tighter text-primary group-hover:text-ceylon-700 transition-colors">
                Relic Lanka Tours
              </span>

@@ -2,14 +2,16 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Star, PlayCircle, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useData } from '../context/DataContext';
 import { Button } from '../components/ui/Button';
 import { Section } from '../components/ui/Section';
 import { TourCard } from '../components/features/TourCard';
 import { SriLankaMap } from '../components/features/SriLankaMap';
-import { TOURS, TESTIMONIALS } from '../data/mockData';
+import { TESTIMONIALS } from '../data/mockData';
 
 export const Home: React.FC = () => {
-  const featuredTours = TOURS.slice(0, 3);
+  const { tours } = useData();
+  const featuredTours = tours.slice(0, 3);
 
   return (
     <div className="w-full overflow-hidden">

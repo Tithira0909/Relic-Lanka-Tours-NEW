@@ -1,3 +1,14 @@
+export interface TourDestination {
+  name: string;
+  description: string;
+  image: string;
+}
+
+export interface TourActivity {
+  name: string;
+  image: string;
+}
+
 export interface Tour {
   id: string;
   title: string;
@@ -11,6 +22,10 @@ export interface Tour {
   description: string;
   highlights: string[];
   itinerary: { day: number; title: string; description: string }[];
+  inclusions: string[];
+  includedActivities: string[];
+  destinations: TourDestination[];
+  activities: TourActivity[];
 }
 
 export interface Testimonial {
@@ -34,4 +49,24 @@ export interface FilterState {
   region: string;
   duration: string;
   budget: string;
+}
+
+export interface SocialMedia {
+  facebook: string;
+  instagram: string;
+  whatsapp: string; // Phone number for WhatsApp
+  twitter?: string;
+  youtube?: string;
+}
+
+export interface GalleryImage {
+  id: string;
+  url: string;
+  caption?: string;
+}
+
+export interface AppData {
+  tours: Tour[];
+  socialMedia: SocialMedia;
+  gallery: GalleryImage[];
 }

@@ -2,23 +2,10 @@ import React, { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
+import { useData } from '../context/DataContext';
 
 // Register Plugin
 gsap.registerPlugin(ScrollTrigger);
-
-// Mock Data for Gallery
-const spotlightItems = [
-  { name: "Silent Arc", img: "https://images.unsplash.com/photo-1546708773-e57c8d98d28c?q=80&w=1000&auto=format&fit=crop" }, // Ella
-  { name: "Bloom 24", img: "https://images.unsplash.com/photo-1588258524675-802dc211843b?q=80&w=1000&auto=format&fit=crop" }, // Train
-  { name: "Glass Fade", img: "https://images.unsplash.com/photo-1534947963289-4a413d96928e?q=80&w=1000&auto=format&fit=crop" }, // Sigiriya
-  { name: "Echo 9", img: "https://images.unsplash.com/photo-1579261056586-2a86847c2167?q=80&w=1000&auto=format&fit=crop" }, // Elephant
-  { name: "Velvet Loop", img: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=1000&auto=format&fit=crop" }, // Beach
-  { name: "Field Two", img: "https://images.unsplash.com/photo-1586795843472-a42bc7015f01?q=80&w=1000&auto=format&fit=crop" }, // Temple
-  { name: "Pale Thread", img: "https://images.unsplash.com/photo-1536098054483-4d436c646061?q=80&w=1000&auto=format&fit=crop" }, // Tea
-  { name: "Stillroom", img: "https://images.unsplash.com/photo-1590458925501-7294473855a8?q=80&w=1000&auto=format&fit=crop" }, // Waterfall
-  { name: "Ghostline", img: "https://images.unsplash.com/photo-1548685116-2c5e533c3a0b?q=80&w=1000&auto=format&fit=crop" }, // Fishing
-  { name: "Mono 73", img: "https://images.unsplash.com/photo-1562947477-d40b49f4c39f?q=80&w=1000&auto=format&fit=crop" }, // Fort
-];
 
 const config = {
   gap: 0.08,
@@ -27,6 +14,17 @@ const config = {
 };
 
 export const Gallery: React.FC = () => {
+  const { gallery } = useData();
+  const spotlightItems = gallery.map(item => ({
+      name: item.caption || "Gallery Image",
+      img: item.url
+  }));
+
+  // Fallback if gallery is empty
+  if (spotlightItems.length === 0) {
+      spotlightItems.push({ name: "No Images", img: "https://picsum.photos/800/600" });
+  }
+
   const containerRef = useRef<HTMLDivElement>(null);
   const titlesContainerRef = useRef<HTMLDivElement>(null);
   const imagesContainerRef = useRef<HTMLDivElement>(null);
@@ -220,7 +218,7 @@ export const Gallery: React.FC = () => {
     }, containerRef); // Scope GSAP to container
 
     return () => ctx.revert();
-  }, []);
+  }, [spotlightItems]);
 
   return (
     <div ref={containerRef} className="spotlight relative w-full h-screen overflow-hidden bg-white text-primary">
@@ -269,7 +267,7 @@ export const Gallery: React.FC = () => {
       <div className="spotlight-bg-img absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] h-[70%] z-[1] overflow-hidden rounded-3xl scale-0 origin-center pointer-events-none">
         <img 
           ref={bgImgRef}
-          src={spotlightItems[0].img} 
+          src={spotlightItems[0]?.img || ''}
           className="w-full h-full object-cover transition-transform duration-1000 ease-in-out filter brightness-75"
           alt="Background" 
         />

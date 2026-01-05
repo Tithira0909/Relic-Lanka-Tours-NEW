@@ -1,8 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, Twitter, MapPin, Mail, Phone } from 'lucide-react';
+import { Instagram, Facebook, Twitter, MapPin, Mail, Phone, Youtube } from 'lucide-react';
+import { useData } from '../../context/DataContext';
 
 export const Footer: React.FC = () => {
+  const { socialMedia } = useData();
+
+  const socialLinks = [
+    { Icon: Instagram, url: socialMedia.instagram },
+    { Icon: Facebook, url: socialMedia.facebook },
+    { Icon: Twitter, url: socialMedia.twitter },
+    { Icon: Youtube, url: socialMedia.youtube },
+  ].filter(link => link.url);
+
   return (
     <footer className="bg-white border-t border-gray-100 pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -15,8 +25,14 @@ export const Footer: React.FC = () => {
               Curating exceptional journeys through the paradise island of Sri Lanka. Luxury, culture, and nature combined.
             </p>
             <div className="flex space-x-4">
-              {[Instagram, Facebook, Twitter].map((Icon, i) => (
-                <a key={i} href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-ceylon-700 hover:text-white transition-all">
+              {socialLinks.map(({ Icon, url }, i) => (
+                <a
+                  key={i}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-ceylon-700 hover:text-white transition-all"
+                >
                   <Icon className="w-4 h-4" />
                 </a>
               ))}

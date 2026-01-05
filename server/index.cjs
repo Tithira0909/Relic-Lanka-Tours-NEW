@@ -254,6 +254,49 @@ app.post('/api/settings', authenticateToken, async (req, res) => {
     }
 });
 
+// -- Map Pins --
+
+app.get('/api/map_pins', async (req, res) => {
+    try {
+        const rows = await db.query("SELECT * FROM map_pins");
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/map_pins', authenticateToken, async (req, res) => {
+    const { id, name, description, image, x, y } = req.body;
+    try {
+        await db.query("INSERT INTO map_pins (id, name, description, image, x, y) VALUES (?, ?, ?, ?, ?, ?)",
+            [id, name, description, image, x, y]);
+        res.status(201).json({ id, name, description, image, x, y });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/map_pins/:id', authenticateToken, async (req, res) => {
+    const { name, description, image, x, y } = req.body;
+    const { id } = req.params;
+    try {
+        await db.query("UPDATE map_pins SET name = ?, description = ?, image = ?, x = ?, y = ? WHERE id = ?",
+            [name, description, image, x, y, id]);
+        res.json({ message: "Map pin updated" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/map_pins/:id', authenticateToken, async (req, res) => {
+    try {
+        await db.query("DELETE FROM map_pins WHERE id = ?", [req.params.id]);
+        res.json({ message: "Map pin deleted" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

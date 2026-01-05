@@ -42,6 +42,16 @@ const init = () => {
             caption TEXT
         )`);
 
+        // Map Pins
+        db.run(`CREATE TABLE IF NOT EXISTS map_pins (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            description TEXT,
+            image TEXT,
+            x REAL,
+            y REAL
+        )`);
+
         // Settings
         db.run(`CREATE TABLE IF NOT EXISTS settings (
             settings_key TEXT PRIMARY KEY,

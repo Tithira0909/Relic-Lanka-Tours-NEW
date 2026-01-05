@@ -22,6 +22,7 @@ import { Dashboard } from './pages/admin/Dashboard';
 import { TourManager } from './pages/admin/TourManager';
 import { TourForm } from './pages/admin/TourForm';
 import { GalleryManager } from './pages/admin/GalleryManager';
+import MapManager from './pages/admin/MapManager';
 import { Settings } from './pages/admin/Settings';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
@@ -71,6 +72,7 @@ const App: React.FC = () => {
                   <Route path="tours/new" element={<TourForm />} />
                   <Route path="tours/edit/:id" element={<TourForm />} />
                   <Route path="gallery" element={<GalleryManager />} />
+                  <Route path="map" element={<MapManager />} />
                   <Route path="settings" element={<Settings />} />
               </Route>
 

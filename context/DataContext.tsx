@@ -1,83 +1,169 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AppData, Tour, SocialMedia, GalleryImage } from '../types';
-import { TOURS } from '../data/mockData';
+import { useAuth } from './AuthContext';
 
-// Initial Mock Data for other parts
+// Initial Empty Data - Will be fetched
 const INITIAL_SOCIAL_MEDIA: SocialMedia = {
-  facebook: 'https://facebook.com',
-  instagram: 'https://instagram.com',
-  whatsapp: '94771234567',
+  facebook: '',
+  instagram: '',
+  whatsapp: '',
 };
 
-const INITIAL_GALLERY: GalleryImage[] = [
-  { id: '1', url: 'https://picsum.photos/800/600?random=20', caption: 'Beautiful Sunset' },
-  { id: '2', url: 'https://picsum.photos/800/600?random=21', caption: 'Mountain View' },
-  { id: '3', url: 'https://picsum.photos/800/600?random=22', caption: 'Safari Jeep' },
-];
-
 interface DataContextType extends AppData {
-  addTour: (tour: Tour) => void;
-  updateTour: (tour: Tour) => void;
-  deleteTour: (id: string) => void;
-  updateSocialMedia: (social: SocialMedia) => void;
-  addToGallery: (image: GalleryImage) => void;
-  removeFromGallery: (id: string) => void;
+  addTour: (tour: Tour) => Promise<void>;
+  updateTour: (tour: Tour) => Promise<void>;
+  deleteTour: (id: string) => Promise<void>;
+  updateSocialMedia: (social: SocialMedia) => Promise<void>;
+  addToGallery: (image: GalleryImage) => Promise<void>;
+  removeFromGallery: (id: string) => Promise<void>;
+  loading: boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [data, setData] = useState<AppData>(() => {
-    const savedData = localStorage.getItem('ceylon-travel-data');
-    if (savedData) {
-      try {
-        return JSON.parse(savedData);
-      } catch (e) {
-        console.error('Failed to parse saved data', e);
-      }
-    }
-    return {
-      tours: TOURS, // Note: TOURS needs to be updated in mockData.ts to match new type
-      socialMedia: INITIAL_SOCIAL_MEDIA,
-      gallery: INITIAL_GALLERY,
-    };
+  const { token } = useAuth();
+  const [data, setData] = useState<AppData>({
+    tours: [],
+    socialMedia: INITIAL_SOCIAL_MEDIA,
+    gallery: [],
   });
+  const [loading, setLoading] = useState(true);
+
+  const fetchTours = async () => {
+    try {
+      const res = await fetch('/api/tours');
+      const tours = await res.json();
+      setData(prev => ({ ...prev, tours }));
+    } catch (err) {
+      console.error('Failed to fetch tours', err);
+    }
+  };
+
+  const fetchGallery = async () => {
+      try {
+          const res = await fetch('/api/gallery');
+          const gallery = await res.json();
+          setData(prev => ({ ...prev, gallery }));
+      } catch (err) {
+          console.error(err);
+      }
+  };
+
+  const fetchSettings = async () => {
+      try {
+          const res = await fetch('/api/settings');
+          const settings = await res.json();
+          setData(prev => ({
+              ...prev,
+              socialMedia: {
+                  facebook: settings.facebook || '',
+                  instagram: settings.instagram || '',
+                  whatsapp: settings.whatsapp || '',
+                  twitter: settings.twitter,
+                  youtube: settings.youtube
+              }
+          }));
+      } catch (err) {
+          console.error(err);
+      }
+  };
 
   useEffect(() => {
-    localStorage.setItem('ceylon-travel-data', JSON.stringify(data));
-  }, [data]);
+    Promise.all([fetchTours(), fetchGallery(), fetchSettings()]).finally(() => setLoading(false));
+  }, []);
 
-  const addTour = (tour: Tour) => {
-    setData(prev => ({ ...prev, tours: [...prev.tours, tour] }));
+  const authHeaders = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
   };
 
-  const updateTour = (updatedTour: Tour) => {
-    setData(prev => ({
-      ...prev,
-      tours: prev.tours.map(t => (t.id === updatedTour.id ? updatedTour : t)),
-    }));
+  const addTour = async (tour: Tour) => {
+    try {
+        const res = await fetch('/api/tours', {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify(tour)
+        });
+        if (res.ok) {
+            fetchTours();
+        }
+    } catch (e) {
+        console.error(e);
+    }
   };
 
-  const deleteTour = (id: string) => {
-    setData(prev => ({
-      ...prev,
-      tours: prev.tours.filter(t => t.id !== id),
-    }));
+  const updateTour = async (updatedTour: Tour) => {
+     try {
+        const res = await fetch(`/api/tours/${updatedTour.id}`, {
+            method: 'PUT',
+            headers: authHeaders,
+            body: JSON.stringify(updatedTour)
+        });
+        if (res.ok) {
+            fetchTours();
+        }
+    } catch (e) {
+        console.error(e);
+    }
   };
 
-  const updateSocialMedia = (social: SocialMedia) => {
-    setData(prev => ({ ...prev, socialMedia: social }));
+  const deleteTour = async (id: string) => {
+     try {
+        const res = await fetch(`/api/tours/${id}`, {
+            method: 'DELETE',
+            headers: authHeaders
+        });
+        if (res.ok) {
+            fetchTours();
+        }
+    } catch (e) {
+        console.error(e);
+    }
   };
 
-  const addToGallery = (image: GalleryImage) => {
-    setData(prev => ({ ...prev, gallery: [...prev.gallery, image] }));
+  const updateSocialMedia = async (social: SocialMedia) => {
+     try {
+        const res = await fetch('/api/settings', {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify(social)
+        });
+        if (res.ok) {
+            fetchSettings();
+        }
+    } catch (e) {
+        console.error(e);
+    }
   };
 
-  const removeFromGallery = (id: string) => {
-    setData(prev => ({
-      ...prev,
-      gallery: prev.gallery.filter(img => img.id !== id),
-    }));
+  const addToGallery = async (image: GalleryImage) => {
+     try {
+        const res = await fetch('/api/gallery', {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify(image)
+        });
+        if (res.ok) {
+            fetchGallery();
+        }
+    } catch (e) {
+        console.error(e);
+    }
+  };
+
+  const removeFromGallery = async (id: string) => {
+     try {
+        const res = await fetch(`/api/gallery/${id}`, {
+            method: 'DELETE',
+            headers: authHeaders
+        });
+        if (res.ok) {
+            fetchGallery();
+        }
+    } catch (e) {
+        console.error(e);
+    }
   };
 
   return (
@@ -90,6 +176,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateSocialMedia,
         addToGallery,
         removeFromGallery,
+        loading
       }}
     >
       {children}

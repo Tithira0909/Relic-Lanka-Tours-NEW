@@ -13,7 +13,7 @@ import { TravelerStories } from '../components/features/TravelerStories';
 import { useState, useEffect } from 'react';
 
 export const Home: React.FC = () => {
-  const { tours, heroImages, whyChooseUsImages } = useData();
+  const { tours, heroImages, whyChooseUsImages, adventureBanner } = useData();
   const featuredTours = tours.slice(0, 3);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [currentWhyIndex, setCurrentWhyIndex] = useState(0);
@@ -218,9 +218,22 @@ export const Home: React.FC = () => {
       {/* CTA */}
       <section className="py-20 px-4">
          <div className="max-w-7xl mx-auto bg-ceylon-900 rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden">
-            {/* Decorative circles */}
-            <div className="absolute top-0 left-0 w-64 h-64 bg-ceylon-800 rounded-full -translate-x-1/2 -translate-y-1/2 opacity-50 blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-ceylon-600 rounded-full translate-x-1/3 translate-y-1/3 opacity-30 blur-3xl" />
+
+            {adventureBanner ? (
+                <>
+                    {/* Background Image Overlay */}
+                    <div className="absolute inset-0 z-0">
+                         <img src={adventureBanner} alt="Adventure Awaits" className="w-full h-full object-cover opacity-40" />
+                         <div className="absolute inset-0 bg-ceylon-900/80 mix-blend-multiply"></div>
+                    </div>
+                </>
+            ) : (
+                <>
+                    {/* Default Decorative circles */}
+                    <div className="absolute top-0 left-0 w-64 h-64 bg-ceylon-800 rounded-full -translate-x-1/2 -translate-y-1/2 opacity-50 blur-3xl" />
+                    <div className="absolute bottom-0 right-0 w-96 h-96 bg-ceylon-600 rounded-full translate-x-1/3 translate-y-1/3 opacity-30 blur-3xl" />
+                </>
+            )}
             
             <div className="relative z-10">
               <h2 className="text-4xl md:text-6xl font-serif font-bold text-white mb-6">Ready for your adventure?</h2>

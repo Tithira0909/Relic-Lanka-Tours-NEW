@@ -72,4 +72,5 @@ export interface AppData {
   gallery: GalleryImage[];
   heroImages: string[];
   whyChooseUsImages: string[];
+  adventureBanner?: string;
 }

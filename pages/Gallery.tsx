@@ -246,12 +246,12 @@ export const Gallery: React.FC = () => {
         }
         .spotlight-titles-container::before {
           top: 0;
-          background: linear-gradient(to bottom, #ffffff 10%, transparent);
+          background: linear-gradient(to bottom, transparent 10%, transparent);
           opacity: var(--before-opacity, 0);
         }
         .spotlight-titles-container::after {
           bottom: 0;
-          background: linear-gradient(to top, #ffffff 10%, transparent);
+          background: linear-gradient(to top, transparent 10%, transparent);
           opacity: var(--after-opacity, 0);
         }
         .spotlight-img {
@@ -305,7 +305,7 @@ export const Gallery: React.FC = () => {
              {spotlightItems.map((item, i) => (
                <h1 
                 key={i} 
-                className="text-[6vw] font-serif leading-[1.2] opacity-25 transition-opacity duration-300 text-primary whitespace-nowrap"
+                className="text-[6vw] font-serif leading-[1.2] opacity-25 transition-opacity duration-300 text-white whitespace-nowrap drop-shadow-lg"
                 style={{ opacity: i === 0 ? 1 : 0.25 }}
                >
                  {item.name}

@@ -8,7 +8,7 @@ import { Section } from '../components/ui/Section';
 import { TourCard } from '../components/features/TourCard';
 // import { SriLankaMap } from '../components/features/SriLankaMap';
 import { InteractiveMap } from '../components/InteractiveMap';
-import { TESTIMONIALS } from '../data/mockData';
+import { TravelerStories } from '../components/features/TravelerStories';
 
 import { useState, useEffect } from 'react';
 
@@ -212,37 +212,8 @@ export const Home: React.FC = () => {
       {/* Map Section */}
       <InteractiveMap />
 
-      {/* Testimonials */}
-      <Section className="bg-paper rounded-[3rem] my-10">
-         <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-4xl font-serif font-medium text-primary mb-4">Traveler Stories</h2>
-            <p className="text-gray-500">Hear from those who have experienced the magic of Sri Lanka with us.</p>
-         </div>
-         
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((t, idx) => (
-              <motion.div 
-                key={t.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: idx * 0.1 }}
-                className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100"
-              >
-                 <div className="flex text-yellow-400 mb-4">
-                    {[1,2,3,4,5].map(s => <Star key={s} className="w-4 h-4 fill-current" />)}
-                 </div>
-                 <p className="text-gray-600 mb-6 italic leading-relaxed">"{t.text}"</p>
-                 <div className="flex items-center">
-                    <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover mr-4" />
-                    <div>
-                       <h4 className="font-bold text-sm text-primary">{t.name}</h4>
-                       <span className="text-xs text-gray-400">{t.role}</span>
-                    </div>
-                 </div>
-              </motion.div>
-            ))}
-         </div>
-      </Section>
+      {/* Testimonials / Traveler Stories */}
+      <TravelerStories />
 
       {/* CTA */}
       <section className="py-20 px-4">

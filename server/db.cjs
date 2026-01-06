@@ -80,6 +80,18 @@ const init = () => {
             value TEXT
         )`);
 
+        // Reviews
+        db.run(`CREATE TABLE IF NOT EXISTS reviews (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            role TEXT,
+            rating INTEGER,
+            comment TEXT,
+            image TEXT,
+            status TEXT DEFAULT 'pending',
+            date TEXT
+        )`);
+
         // Seed Settings
         db.get("SELECT count(*) as count FROM settings", [], (err, row) => {
              if (row && row.count === 0) {

@@ -62,6 +62,7 @@ export const Gallery: React.FC = () => {
       // Initial States
       gsap.set(images, { opacity: 0 });
       if(titles[0]) gsap.set(titles[0], { opacity: 1 });
+      if (titlesContainerRef.current) gsap.set(titlesContainerRef.current, { opacity: 0 });
 
       // Arc Calculation
       const containerWidth = window.innerWidth * 0.3;
@@ -118,6 +119,7 @@ export const Gallery: React.FC = () => {
             if (titlesContainerRef.current) {
                 titlesContainerRef.current.style.setProperty("--before-opacity", "0");
                 titlesContainerRef.current.style.setProperty("--after-opacity", "0");
+                gsap.set(titlesContainerRef.current, { opacity: 0 });
             }
           } 
           // Phase 2: Transition (0.2 - 0.25)
@@ -132,6 +134,7 @@ export const Gallery: React.FC = () => {
             if (titlesContainerRef.current) {
                 titlesContainerRef.current.style.setProperty("--before-opacity", "1");
                 titlesContainerRef.current.style.setProperty("--after-opacity", "1");
+                gsap.set(titlesContainerRef.current, { opacity: 1 });
             }
           }
           // Phase 3: Gallery Scroll (0.25 - 0.95)
@@ -144,6 +147,7 @@ export const Gallery: React.FC = () => {
             if (titlesContainerRef.current) {
                 titlesContainerRef.current.style.setProperty("--before-opacity", "1");
                 titlesContainerRef.current.style.setProperty("--after-opacity", "1");
+                gsap.set(titlesContainerRef.current, { opacity: 1 });
             }
 
             // Move Titles

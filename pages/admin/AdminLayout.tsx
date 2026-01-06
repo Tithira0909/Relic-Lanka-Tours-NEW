@@ -1,9 +1,16 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Map, Image, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -72,10 +79,16 @@ export const AdminLayout: React.FC = () => {
         </nav>
         <div className="p-4 border-t">
           <button
-            onClick={() => navigate('/')}
-            className="flex items-center p-3 text-red-500 hover:bg-red-50 rounded-lg w-full transition-colors"
+            onClick={handleLogout}
+            className="flex items-center p-3 text-red-500 hover:bg-red-50 rounded-lg w-full transition-colors mb-2"
           >
             <LogOut className="w-5 h-5 mr-3" />
+            Logout
+          </button>
+           <button
+            onClick={() => navigate('/')}
+            className="flex items-center p-3 text-gray-500 hover:bg-gray-50 rounded-lg w-full transition-colors text-sm"
+          >
             Back to Site
           </button>
         </div>

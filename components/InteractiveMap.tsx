@@ -32,7 +32,7 @@ export const InteractiveMap: React.FC = () => {
                     </p>
                 </div>
 
-                <div className="relative max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-2">
+                <div className="relative max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-2">
                      <div className="relative">
                         <img
                             src="/assets/interactive-map.png"

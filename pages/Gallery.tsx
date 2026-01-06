@@ -192,9 +192,9 @@ export const Gallery: React.FC = () => {
                 if (titles[closestIndex]) gsap.to(titles[closestIndex], { opacity: 1, duration: 0.2 });
                 
                 // Change BG Image
-                // if (bgImgRef.current) {
-                //    bgImgRef.current.src = spotlightItems[closestIndex].img;
-                // }
+                if (bgImgRef.current) {
+                   bgImgRef.current.src = spotlightItems[closestIndex].img;
+                }
                 currentActiveIndex = closestIndex;
             }
 
@@ -221,7 +221,17 @@ export const Gallery: React.FC = () => {
   }, [spotlightItems]);
 
   return (
-    <div ref={containerRef} className="spotlight relative w-full h-screen overflow-hidden bg-white text-primary">
+    <div ref={containerRef} className="spotlight relative w-full h-screen overflow-hidden bg-black text-white">
+      {/* Global Hero Background */}
+      <div className="absolute inset-0 z-0">
+          <img
+            src={heroImages.length > 0 ? heroImages[0] : "https://picsum.photos/1920/1080"}
+            className="w-full h-full object-cover opacity-40"
+            alt="Hero Background"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"></div>
+      </div>
+
       <style>{`
         .spotlight-titles-container::before,
         .spotlight-titles-container::after {
@@ -263,15 +273,14 @@ export const Gallery: React.FC = () => {
         }
       `}</style>
 
-      {/* Background Image Layer */}
-      <div className="spotlight-bg-img absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] h-[70%] z-[1] overflow-hidden rounded-3xl scale-0 origin-center pointer-events-none">
+      {/* Dynamic Gallery Image Card */}
+      <div className="spotlight-bg-img absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] h-[70%] z-[1] overflow-hidden rounded-3xl scale-0 origin-center pointer-events-none shadow-2xl border border-white/10">
         <img 
           ref={bgImgRef}
-          src={heroImages.length > 0 ? heroImages[0] : (spotlightItems[0]?.img || '')}
-          className="w-full h-full object-cover transition-transform duration-1000 ease-in-out"
-          alt="Background" 
+          src={spotlightItems[0]?.img || ''}
+          className="w-full h-full object-cover transition-transform duration-1000 ease-in-out filter brightness-90"
+          alt="Gallery Spotlight"
         />
-        <div className="absolute inset-0 bg-black/50 z-[2]"></div>
       </div>
 
       {/* Header */}

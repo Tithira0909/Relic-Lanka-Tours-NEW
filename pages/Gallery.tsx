@@ -14,7 +14,7 @@ const config = {
 };
 
 export const Gallery: React.FC = () => {
-  const { gallery } = useData();
+  const { gallery, heroImages } = useData();
   const spotlightItems = gallery.map(item => ({
       name: item.caption || "Gallery Image",
       img: item.url
@@ -192,9 +192,9 @@ export const Gallery: React.FC = () => {
                 if (titles[closestIndex]) gsap.to(titles[closestIndex], { opacity: 1, duration: 0.2 });
                 
                 // Change BG Image
-                if (bgImgRef.current) {
-                    bgImgRef.current.src = spotlightItems[closestIndex].img;
-                }
+                // if (bgImgRef.current) {
+                //    bgImgRef.current.src = spotlightItems[closestIndex].img;
+                // }
                 currentActiveIndex = closestIndex;
             }
 
@@ -267,10 +267,11 @@ export const Gallery: React.FC = () => {
       <div className="spotlight-bg-img absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] h-[70%] z-[1] overflow-hidden rounded-3xl scale-0 origin-center pointer-events-none">
         <img 
           ref={bgImgRef}
-          src={spotlightItems[0]?.img || ''}
-          className="w-full h-full object-cover transition-transform duration-1000 ease-in-out filter brightness-75"
+          src={heroImages.length > 0 ? heroImages[0] : (spotlightItems[0]?.img || '')}
+          className="w-full h-full object-cover transition-transform duration-1000 ease-in-out"
           alt="Background" 
         />
+        <div className="absolute inset-0 bg-black/50 z-[2]"></div>
       </div>
 
       {/* Header */}

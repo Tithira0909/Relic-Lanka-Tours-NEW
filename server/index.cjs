@@ -298,6 +298,69 @@ app.delete('/api/map_pins/:id', authenticateToken, async (req, res) => {
 });
 
 
+// -- Reviews --
+
+// Public: Get Approved Reviews
+app.get('/api/reviews', async (req, res) => {
+    try {
+        const rows = await db.query("SELECT * FROM reviews WHERE status = 'approved' ORDER BY date DESC");
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Public: Submit Review
+app.post('/api/reviews', upload.single('image'), async (req, res) => {
+    const { name, role, rating, comment } = req.body;
+    // req.file might be undefined if no image uploaded
+    const image = req.file ? `/api/uploads/${req.file.filename}` : '';
+    const id = Date.now().toString();
+    const date = new Date().toISOString();
+    const status = 'pending';
+
+    try {
+        await db.query("INSERT INTO reviews (id, name, role, rating, comment, image, status, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [id, name, role, rating, comment, image, status, date]);
+        res.status(201).json({ message: "Review submitted for approval" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin: Get All Reviews
+app.get('/api/admin/reviews', authenticateToken, async (req, res) => {
+    try {
+        const rows = await db.query("SELECT * FROM reviews ORDER BY date DESC");
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin: Update Review Status
+app.put('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
+    const { status } = req.body;
+    const { id } = req.params;
+    try {
+        await db.query("UPDATE reviews SET status = ? WHERE id = ?", [status, id]);
+        res.json({ message: "Review status updated" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin: Delete Review
+app.delete('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
+    try {
+        await db.query("DELETE FROM reviews WHERE id = ?", [req.params.id]);
+        res.json({ message: "Review deleted" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

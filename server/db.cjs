@@ -52,10 +52,44 @@ const init = () => {
             y REAL
         )`);
 
+        // Seed Map Pins
+        db.get("SELECT count(*) as count FROM map_pins", [], (err, row) => {
+             if (row && row.count === 0) {
+                 const pins = [
+                     {
+                         id: '1',
+                         name: 'Vintage Mac',
+                         description: 'A legendary artifact discovered in the digital landscape.',
+                         image: '/assets/mac-vintage.png',
+                         x: 50,
+                         y: 50
+                     }
+                 ];
+                 const stmt = db.prepare("INSERT INTO map_pins (id, name, description, image, x, y) VALUES (?, ?, ?, ?, ?, ?)");
+                 for (const p of pins) {
+                     stmt.run(p.id, p.name, p.description, p.image, p.x, p.y);
+                 }
+                 stmt.finalize();
+                 console.log("Map pins seeded.");
+             }
+        });
+
         // Settings
         db.run(`CREATE TABLE IF NOT EXISTS settings (
             settings_key TEXT PRIMARY KEY,
             value TEXT
+        )`);
+
+        // Reviews
+        db.run(`CREATE TABLE IF NOT EXISTS reviews (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            role TEXT,
+            rating INTEGER,
+            comment TEXT,
+            image TEXT,
+            status TEXT DEFAULT 'pending',
+            date TEXT
         )`);
 
         // Seed Settings

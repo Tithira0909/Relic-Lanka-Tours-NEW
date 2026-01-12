@@ -18,6 +18,7 @@ interface DataContextType extends AppData {
   removeFromGallery: (id: string) => Promise<void>;
   updateHeroImages: (images: string[]) => Promise<void>;
   updateWhyChooseUsImages: (images: string[]) => Promise<void>;
+  updateAdventureBanner: (url: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -68,7 +69,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   youtube: settings.youtube
               },
               heroImages: settings.hero_images ? JSON.parse(settings.hero_images) : [],
-              whyChooseUsImages: settings.why_choose_us_images ? JSON.parse(settings.why_choose_us_images) : []
+              whyChooseUsImages: settings.why_choose_us_images ? JSON.parse(settings.why_choose_us_images) : [],
+              adventureBanner: settings.adventure_banner || ''
           }));
       } catch (err) {
           console.error(err);
@@ -120,6 +122,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify({ why_choose_us_images: JSON.stringify(images) })
+        });
+        if (res.ok) {
+            fetchSettings();
+        }
+    } catch (e) {
+        console.error(e);
+    }
+  };
+
+  const updateAdventureBanner = async (url: string) => {
+    try {
+        const res = await fetch('/api/settings', {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify({ adventure_banner: url })
         });
         if (res.ok) {
             fetchSettings();
@@ -214,6 +231,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         removeFromGallery,
         updateHeroImages,
         updateWhyChooseUsImages,
+        updateAdventureBanner,
         loading
       }}
     >

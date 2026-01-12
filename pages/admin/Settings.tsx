@@ -4,16 +4,21 @@ import { ImageUpload } from '../../components/common/ImageUpload';
 import { Trash2 } from 'lucide-react';
 
 export const Settings: React.FC = () => {
-  const { socialMedia, heroImages, whyChooseUsImages, updateSocialMedia, updateHeroImages, updateWhyChooseUsImages } = useData();
+  const {
+    socialMedia, heroImages, whyChooseUsImages, adventureBanner,
+    updateSocialMedia, updateHeroImages, updateWhyChooseUsImages, updateAdventureBanner
+  } = useData();
   const [formData, setFormData] = useState(socialMedia);
   const [localHeroImages, setLocalHeroImages] = useState<string[]>([]);
   const [localWhyChooseUsImages, setLocalWhyChooseUsImages] = useState<string[]>([]);
+  const [localAdventureBanner, setLocalAdventureBanner] = useState<string>('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
       setLocalHeroImages(heroImages);
       setLocalWhyChooseUsImages(whyChooseUsImages);
-  }, [heroImages, whyChooseUsImages]);
+      setLocalAdventureBanner(adventureBanner || '');
+  }, [heroImages, whyChooseUsImages, adventureBanner]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,6 +30,7 @@ export const Settings: React.FC = () => {
     updateSocialMedia(formData);
     updateHeroImages(localHeroImages);
     updateWhyChooseUsImages(localWhyChooseUsImages);
+    updateAdventureBanner(localAdventureBanner);
     setMessage('Settings updated successfully!');
     setTimeout(() => setMessage(''), 3000);
   };
@@ -151,6 +157,32 @@ export const Settings: React.FC = () => {
                     <ImageUpload value="" onChange={addHeroImage} placeholder="Upload hero image..." />
                 </div>
             )}
+        </div>
+
+        {/* Adventure Banner Image */}
+        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+            <h2 className="text-xl font-bold mb-6">Adventure Banner Image</h2>
+            <p className="text-sm text-gray-500 mb-4">Upload a custom image for the "Ready for your adventure?" section.</p>
+
+            {localAdventureBanner && (
+                 <div className="relative group rounded-lg overflow-hidden h-48 border border-gray-200 mb-6">
+                    <img src={localAdventureBanner} alt="Adventure Banner" className="w-full h-full object-cover" />
+                    <button
+                        type="button"
+                        onClick={() => setLocalAdventureBanner('')}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                </div>
+            )}
+
+            <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {localAdventureBanner ? "Change Image" : "Upload Image"}
+                </label>
+                <ImageUpload value="" onChange={setLocalAdventureBanner} placeholder="Upload banner image..." />
+            </div>
         </div>
 
         {/* Why Choose Us Images */}

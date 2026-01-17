@@ -32,8 +32,28 @@ const init = () => {
             includedActivities TEXT,
             destinations TEXT,
             activities TEXT,
-            itinerary TEXT
+            itinerary TEXT,
+            price_luxury INTEGER,
+            price_semi_luxury INTEGER,
+            hotels_luxury TEXT,
+            hotels_semi_luxury TEXT,
+            price_child INTEGER
         )`);
+
+        // Migrations for existing tours table
+        const migrationColumns = [
+            "price_luxury INTEGER",
+            "price_semi_luxury INTEGER",
+            "hotels_luxury TEXT",
+            "hotels_semi_luxury TEXT",
+            "price_child INTEGER"
+        ];
+
+        migrationColumns.forEach(colDef => {
+            db.run(`ALTER TABLE tours ADD COLUMN ${colDef}`, (err) => {
+                // Ignore errors if column already exists
+            });
+        });
 
         // Gallery
         db.run(`CREATE TABLE IF NOT EXISTS gallery (
@@ -152,14 +172,19 @@ const init = () => {
                         { day: 5, title: 'Little England', description: 'High tea at the Grand Hotel and Gregory Lake boat ride.' },
                         { day: 6, title: 'Return to Coast', description: 'Drive down to the southern coast for a sunset beach dinner.' },
                         { day: 7, title: 'Departure', description: 'Transfer to airport with souvenir shopping stop.' }
-                    ])
+                    ]),
+                    price_luxury: 500,
+                    price_semi_luxury: 200,
+                    hotels_luxury: JSON.stringify([{name: 'Hotel A', image: ''}]),
+                    hotels_semi_luxury: JSON.stringify([{name: 'Hotel B', image: ''}])
                 };
 
                 const t = initialTour;
-                db.run(`INSERT INTO tours VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+                db.run(`INSERT INTO tours VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
                     t.id, t.title, t.location, t.price, t.days, t.nights, t.category, t.rating, t.reviews,
                     t.image, t.description, t.highlights, t.inclusions, t.includedActivities,
-                    t.destinations, t.activities, t.itinerary
+                    t.destinations, t.activities, t.itinerary,
+                    t.price_luxury, t.price_semi_luxury, t.hotels_luxury, t.hotels_semi_luxury
                 ]);
                 console.log("Initial tour seeded.");
             }

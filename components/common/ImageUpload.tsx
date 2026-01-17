@@ -11,7 +11,7 @@ interface ImageUploadProps {
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, className, placeholder = "Image URL" }) => {
   const [uploading, setUploading] = useState(false);
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,13 +30,22 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, class
         body: formData,
       });
 
+      if (res.status === 401 || res.status === 403) {
+          logout();
+          throw new Error('Session expired');
+      }
+
       if (!res.ok) throw new Error('Upload failed');
 
       const data = await res.json();
       onChange(data.imageUrl); // This should be the relative URL returned by backend
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert('Failed to upload image');
+      if (error.message === 'Session expired') {
+          alert('Session expired. Please login again.');
+      } else {
+          alert('Failed to upload image. Please try again.');
+      }
     } finally {
       setUploading(false);
     }

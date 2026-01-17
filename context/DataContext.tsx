@@ -66,7 +66,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   instagram: settings.instagram || '',
                   whatsapp: settings.whatsapp || '',
                   twitter: settings.twitter,
-                  youtube: settings.youtube
+                  youtube: settings.youtube,
+                  wechat_id: settings.wechat_id,
+                  wechat_qr: settings.wechat_qr
               },
               heroImages: settings.hero_images ? JSON.parse(settings.hero_images) : [],
               whyChooseUsImages: settings.why_choose_us_images ? JSON.parse(settings.why_choose_us_images) : [],

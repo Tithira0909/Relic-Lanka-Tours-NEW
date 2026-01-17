@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
-import { Tour, TourDestination, TourActivity } from '../../types';
+import { Tour, TourDestination, TourActivity, HotelOption } from '../../types';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { ImageUpload } from '../../components/common/ImageUpload';
 
@@ -17,6 +17,9 @@ export const TourForm: React.FC = () => {
     title: '',
     location: '',
     price: 0,
+    price_child: 0,
+    price_luxury: 0,
+    price_semi_luxury: 0,
     days: 1,
     nights: 0,
     category: 'Nature',
@@ -30,6 +33,8 @@ export const TourForm: React.FC = () => {
     includedActivities: [],
     destinations: [],
     activities: [],
+    hotels_luxury: [],
+    hotels_semi_luxury: []
   };
 
   const [formData, setFormData] = useState<Tour>(initialTour);
@@ -43,7 +48,12 @@ export const TourForm: React.FC = () => {
             inclusions: existingTour.inclusions || [],
             includedActivities: existingTour.includedActivities || [],
             destinations: existingTour.destinations || [],
-            activities: existingTour.activities || []
+            activities: existingTour.activities || [],
+            hotels_luxury: existingTour.hotels_luxury || [],
+            hotels_semi_luxury: existingTour.hotels_semi_luxury || [],
+            price_luxury: existingTour.price_luxury || 0,
+            price_semi_luxury: existingTour.price_semi_luxury || 0,
+            price_child: existingTour.price_child || 0
         });
       }
     }
@@ -51,7 +61,7 @@ export const TourForm: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: name === 'price' || name === 'days' || name === 'nights' ? Number(value) : value }));
+    setFormData(prev => ({ ...prev, [name]: ['price', 'price_child', 'days', 'nights', 'price_luxury', 'price_semi_luxury'].includes(name) ? Number(value) : value }));
   };
 
   const handleArrayChange = (field: 'highlights' | 'inclusions' | 'includedActivities', index: number, value: string) => {
@@ -131,6 +141,29 @@ export const TourForm: React.FC = () => {
     }));
   };
 
+  // Hotel Handlers
+  const handleHotelChange = (type: 'luxury' | 'semi_luxury', index: number, field: keyof HotelOption, value: string) => {
+    const key = type === 'luxury' ? 'hotels_luxury' : 'hotels_semi_luxury';
+    const newHotels = [...(formData[key as keyof Tour] as HotelOption[])];
+    newHotels[index] = { ...newHotels[index], [field]: value };
+    setFormData(prev => ({ ...prev, [key]: newHotels }));
+  };
+
+  const addHotel = (type: 'luxury' | 'semi_luxury') => {
+    const key = type === 'luxury' ? 'hotels_luxury' : 'hotels_semi_luxury';
+    setFormData(prev => ({
+      ...prev,
+      [key]: [...(prev[key as keyof Tour] as HotelOption[]), { name: '', image: '' }]
+    }));
+  };
+
+  const removeHotel = (type: 'luxury' | 'semi_luxury', index: number) => {
+    const key = type === 'luxury' ? 'hotels_luxury' : 'hotels_semi_luxury';
+    setFormData(prev => ({
+      ...prev,
+      [key]: (prev[key as keyof Tour] as HotelOption[]).filter((_, i) => i !== index)
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,8 +207,12 @@ export const TourForm: React.FC = () => {
                 </select>
             </div>
              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Adult Base Price ($)</label>
                 <input required type="number" name="price" value={formData.price} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" />
+            </div>
+             <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Child Base Price ($)</label>
+                <input type="number" name="price_child" value={formData.price_child || 0} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" />
             </div>
              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Days</label>
@@ -184,6 +221,14 @@ export const TourForm: React.FC = () => {
              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nights</label>
                 <input required type="number" name="nights" value={formData.nights} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" />
+            </div>
+             <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Luxury Extra Price ($)</label>
+                <input type="number" name="price_luxury" value={formData.price_luxury} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" />
+            </div>
+             <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Semi-Luxury Extra Price ($)</label>
+                <input type="number" name="price_semi_luxury" value={formData.price_semi_luxury} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" />
             </div>
              <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Main Image</label>
@@ -295,6 +340,48 @@ export const TourForm: React.FC = () => {
                 ))}
                 <button type="button" onClick={addItineraryDay} className="px-4 py-2 border border-dashed border-ceylon-500 text-ceylon-700 rounded-lg w-full hover:bg-ceylon-50">+ Add Day</button>
              </div>
+
+        </section>
+
+        {/* Hotel Packages */}
+        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-6">
+            <h2 className="text-xl font-bold border-b pb-2 mb-4">Hotel Packages</h2>
+
+            {/* Luxury Hotels */}
+            <div>
+                <h3 className="font-semibold text-gray-800 mb-2">Luxury Hotels</h3>
+                {formData.hotels_luxury?.map((hotel, idx) => (
+                    <div key={idx} className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+                         <div className="flex justify-between mb-2">
+                            <span className="text-sm font-bold text-gray-500">Hotel {idx + 1}</span>
+                            <button type="button" onClick={() => removeHotel('luxury', idx)} className="text-red-500 hover:text-red-700"><Trash2 size={18} /></button>
+                        </div>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input placeholder="Hotel Name" value={hotel.name} onChange={(e) => handleHotelChange('luxury', idx, 'name', e.target.value)} className="px-4 py-2 border rounded-lg" />
+                            <ImageUpload placeholder="Hotel Image" value={hotel.image} onChange={(url) => handleHotelChange('luxury', idx, 'image', url)} />
+                        </div>
+                    </div>
+                ))}
+                 <button type="button" onClick={() => addHotel('luxury')} className="px-4 py-2 border border-dashed border-ceylon-500 text-ceylon-700 rounded-lg w-full hover:bg-ceylon-50">+ Add Luxury Hotel</button>
+            </div>
+
+            {/* Semi-Luxury Hotels */}
+            <div className="mt-6">
+                <h3 className="font-semibold text-gray-800 mb-2">Semi-Luxury Hotels</h3>
+                {formData.hotels_semi_luxury?.map((hotel, idx) => (
+                    <div key={idx} className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+                         <div className="flex justify-between mb-2">
+                            <span className="text-sm font-bold text-gray-500">Hotel {idx + 1}</span>
+                            <button type="button" onClick={() => removeHotel('semi_luxury', idx)} className="text-red-500 hover:text-red-700"><Trash2 size={18} /></button>
+                        </div>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input placeholder="Hotel Name" value={hotel.name} onChange={(e) => handleHotelChange('semi_luxury', idx, 'name', e.target.value)} className="px-4 py-2 border rounded-lg" />
+                            <ImageUpload placeholder="Hotel Image" value={hotel.image} onChange={(url) => handleHotelChange('semi_luxury', idx, 'image', url)} />
+                        </div>
+                    </div>
+                ))}
+                 <button type="button" onClick={() => addHotel('semi_luxury')} className="px-4 py-2 border border-dashed border-ceylon-500 text-ceylon-700 rounded-lg w-full hover:bg-ceylon-50">+ Add Semi-Luxury Hotel</button>
+            </div>
 
         </section>
 

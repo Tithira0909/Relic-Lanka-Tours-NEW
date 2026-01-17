@@ -6,7 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
-import { WhatsAppBubble } from './components/common/WhatsAppBubble';
+import { SocialBubbles } from './components/common/SocialBubbles';
 
 import { Home } from './pages/Home';
 import { Tours } from './pages/Tours';
@@ -44,7 +44,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
             {children}
         </main>
         <Footer />
-        <WhatsAppBubble />
+        <SocialBubbles />
     </div>
 );
 

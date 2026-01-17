@@ -25,6 +25,10 @@ export const Settings: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (name: string, url: string) => {
+      setFormData(prev => ({ ...prev, [name]: url }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateSocialMedia(formData);
@@ -116,6 +120,30 @@ export const Settings: React.FC = () => {
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none"
             />
+          </div>
+
+          <div className="border-t pt-4 mt-4">
+              <h3 className="font-bold text-gray-800 mb-4">WeChat Configuration</h3>
+              <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">WeChat ID</label>
+                    <input
+                      type="text"
+                      name="wechat_id"
+                      value={formData.wechat_id || ''}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">WeChat QR Code</label>
+                    <ImageUpload
+                        value={formData.wechat_qr || ''}
+                        onChange={(url) => handleImageChange('wechat_qr', url)}
+                        placeholder="Upload WeChat QR Code"
+                    />
+                  </div>
+              </div>
           </div>
 
           <div className="pt-4">

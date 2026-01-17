@@ -124,7 +124,10 @@ app.get('/api/tours', async (req, res) => {
             includedActivities: typeof row.includedActivities === 'string' ? JSON.parse(row.includedActivities) : row.includedActivities,
             destinations: typeof row.destinations === 'string' ? JSON.parse(row.destinations) : row.destinations,
             activities: typeof row.activities === 'string' ? JSON.parse(row.activities) : row.activities,
-            itinerary: typeof row.itinerary === 'string' ? JSON.parse(row.itinerary) : row.itinerary
+            itinerary: typeof row.itinerary === 'string' ? JSON.parse(row.itinerary) : row.itinerary,
+            hotels_luxury: typeof row.hotels_luxury === 'string' ? JSON.parse(row.hotels_luxury) : row.hotels_luxury,
+            hotels_semi_luxury: typeof row.hotels_semi_luxury === 'string' ? JSON.parse(row.hotels_semi_luxury) : row.hotels_semi_luxury,
+            price_child: row.price_child
       }));
       res.json(tours);
   } catch (err) {
@@ -135,7 +138,7 @@ app.get('/api/tours', async (req, res) => {
 // Create Tour (Protected)
 app.post('/api/tours', authenticateToken, async (req, res) => {
   const t = req.body;
-  const sql = `INSERT INTO tours VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const sql = `INSERT INTO tours VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   try {
       await db.query(sql, [
@@ -146,7 +149,12 @@ app.post('/api/tours', authenticateToken, async (req, res) => {
         JSON.stringify(t.includedActivities || []),
         JSON.stringify(t.destinations || []),
         JSON.stringify(t.activities || []),
-        JSON.stringify(t.itinerary || [])
+        JSON.stringify(t.itinerary || []),
+        t.price_luxury || 0,
+        t.price_semi_luxury || 0,
+        JSON.stringify(t.hotels_luxury || []),
+        JSON.stringify(t.hotels_semi_luxury || []),
+        t.price_child || 0
       ]);
       res.status(201).json(t);
   } catch (err) {
@@ -162,7 +170,9 @@ app.put('/api/tours/:id', authenticateToken, async (req, res) => {
   const sql = `UPDATE tours SET
     title = ?, location = ?, price = ?, days = ?, nights = ?, category = ?,
     image = ?, description = ?, highlights = ?, inclusions = ?,
-    includedActivities = ?, destinations = ?, activities = ?, itinerary = ?
+    includedActivities = ?, destinations = ?, activities = ?, itinerary = ?,
+    price_luxury = ?, price_semi_luxury = ?, hotels_luxury = ?, hotels_semi_luxury = ?,
+    price_child = ?
     WHERE id = ?`;
 
   try {
@@ -175,6 +185,11 @@ app.put('/api/tours/:id', authenticateToken, async (req, res) => {
         JSON.stringify(t.destinations || []),
         JSON.stringify(t.activities || []),
         JSON.stringify(t.itinerary || []),
+        t.price_luxury || 0,
+        t.price_semi_luxury || 0,
+        JSON.stringify(t.hotels_luxury || []),
+        JSON.stringify(t.hotels_semi_luxury || []),
+        t.price_child || 0,
         id
       ]);
       res.json({ message: "Tour updated", changes: result.affectedRows });

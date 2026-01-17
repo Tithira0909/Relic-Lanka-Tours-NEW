@@ -43,7 +43,7 @@ export const TourDetail: React.FC = () => {
             <div className="flex flex-wrap gap-2 mb-4">
               <span className="px-3 py-1 bg-ceylon-600 text-white rounded-full text-sm font-medium">{tour.category}</span>
               <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white rounded-full text-sm font-medium flex items-center">
-                <Clock className="w-3 h-3 mr-2" /> {tour.days} Days
+                <Clock className="w-3 h-3 mr-2" /> {tour.days} Days / {tour.nights} Nights
               </span>
             </div>
             <h1 className="text-4xl md:text-6xl font-serif font-bold text-white mb-2">{tour.title}</h1>

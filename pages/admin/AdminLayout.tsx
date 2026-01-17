@@ -48,6 +48,17 @@ export const AdminLayout: React.FC = () => {
             Gallery
           </NavLink>
           <NavLink
+            to="/admin/map"
+            className={({ isActive }) =>
+              `flex items-center p-3 rounded-lg transition-colors ${
+                isActive ? 'bg-ceylon-100 text-ceylon-800' : 'text-gray-600 hover:bg-gray-50'
+              }`
+            }
+          >
+            <Map className="w-5 h-5 mr-3" />
+            Interactive Map
+          </NavLink>
+          <NavLink
             to="/admin/settings"
             className={({ isActive }) =>
               `flex items-center p-3 rounded-lg transition-colors ${
@@ -71,8 +82,13 @@ export const AdminLayout: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto p-8">
-        <Outlet />
+      <div className="flex-1 overflow-auto p-8 relative">
+        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none opacity-[0.08]">
+             <img src="/assets/logo.png" alt="Watermark" className="w-[600px] h-[600px] object-contain grayscale" />
+        </div>
+        <div className="relative z-10">
+             <Outlet />
+        </div>
       </div>
     </div>
   );

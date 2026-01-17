@@ -33,13 +33,18 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-white/80 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'
+        className={`fixed top-4 left-4 right-4 z-50 transition-all duration-300 rounded-2xl border border-white/20 shadow-lg ${
+          isScrolled
+            ? 'bg-white/90 backdrop-blur-md py-3'
+            : 'bg-white/90 backdrop-blur-md py-4'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-          <Link to="/" className="text-2xl font-serif font-semibold tracking-tighter text-primary">
-            CEYLON<span className="text-ceylon-700">.</span>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3 group">
+             <img src="/assets/logo.png" alt="Relic Lanka Tours" className="h-10 w-auto object-contain" />
+             <span className="text-xl md:text-2xl font-serif font-semibold tracking-tighter text-primary group-hover:text-ceylon-700 transition-colors">
+               Relic Lanka Tours
+             </span>
           </Link>
 
           {/* Desktop Nav */}

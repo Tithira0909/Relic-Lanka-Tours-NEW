@@ -31,7 +31,7 @@ export const TourCard: React.FC<TourCardProps> = ({ tour }) => {
         <div className="flex items-center text-gray-400 text-sm mb-3 space-x-4">
           <div className="flex items-center">
             <Clock className="w-4 h-4 mr-1" />
-            {tour.days} Days
+            {tour.days} Days / {tour.nights} Nights
           </div>
           <div className="flex items-center">
             <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />

@@ -64,7 +64,7 @@ export const Settings: React.FC = () => {
       {/* Social Media */}
       <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
         <h2 className="text-xl font-bold mb-6">Social Media Links</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">WhatsApp Number</label>
             <input
@@ -120,14 +120,15 @@ export const Settings: React.FC = () => {
 
           <div className="pt-4">
             <button
-              type="submit"
+              type="button"
+              onClick={() => { updateSocialMedia(formData); setMessage('Social Media saved!'); setTimeout(() => setMessage(''), 3000); }}
               className="px-6 py-2 bg-ceylon-700 text-white rounded-lg hover:bg-ceylon-800 transition-colors"
             >
-              Save Changes
+              Save Social Media
             </button>
             {message && <span className="ml-4 text-green-600">{message}</span>}
           </div>
-        </form>
+        </div>
       </div>
 
       <div className="space-y-8">
@@ -157,6 +158,15 @@ export const Settings: React.FC = () => {
                     <ImageUpload value="" onChange={addHeroImage} placeholder="Upload hero image..." />
                 </div>
             )}
+            <div className="mt-4 flex justify-end">
+                <button
+                    type="button"
+                    onClick={() => { updateHeroImages(localHeroImages); setMessage('Hero Images saved!'); setTimeout(() => setMessage(''), 3000); }}
+                    className="px-4 py-2 bg-ceylon-700 text-white rounded-lg hover:bg-ceylon-800 transition-colors"
+                >
+                    Save Hero Images
+                </button>
+            </div>
         </div>
 
         {/* Adventure Banner Image */}
@@ -182,6 +192,15 @@ export const Settings: React.FC = () => {
                     {localAdventureBanner ? "Change Image" : "Upload Image"}
                 </label>
                 <ImageUpload value="" onChange={setLocalAdventureBanner} placeholder="Upload banner image..." />
+            </div>
+            <div className="mt-4 flex justify-end">
+                <button
+                    type="button"
+                    onClick={() => { updateAdventureBanner(localAdventureBanner); setMessage('Adventure Banner saved!'); setTimeout(() => setMessage(''), 3000); }}
+                    className="px-4 py-2 bg-ceylon-700 text-white rounded-lg hover:bg-ceylon-800 transition-colors"
+                >
+                    Save Banner
+                </button>
             </div>
         </div>
 
@@ -211,6 +230,15 @@ export const Settings: React.FC = () => {
                     <ImageUpload value="" onChange={addWhyChooseUsImage} placeholder="Upload image..." />
                 </div>
             )}
+            <div className="mt-4 flex justify-end">
+                <button
+                    type="button"
+                    onClick={() => { updateWhyChooseUsImages(localWhyChooseUsImages); setMessage('Why Choose Us Images saved!'); setTimeout(() => setMessage(''), 3000); }}
+                    className="px-4 py-2 bg-ceylon-700 text-white rounded-lg hover:bg-ceylon-800 transition-colors"
+                >
+                    Save Why Choose Us Images
+                </button>
+            </div>
         </div>
       </div>
 

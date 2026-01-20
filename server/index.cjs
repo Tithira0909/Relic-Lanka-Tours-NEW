@@ -17,12 +17,14 @@ const fs = require('fs');
  * 3. Comment out `const db = require('./db.cjs');`
  * 4. Uncomment `const db = require('./db_mysql.cjs');`
  */
-const db = require('./db.cjs'); // SQLite
+// const db = require('./db.cjs'); // SQLite
 // const db = require('./db_mysql.cjs'); // MySQL
 
 const dotenv = require('dotenv');
 
 dotenv.config();
+
+const db = process.env.DB_TYPE === 'mysql' ? require('./db_mysql.cjs') : require('./db.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 3001;

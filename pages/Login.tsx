@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Lock, User } from 'lucide-react';
+import { API_BASE_URL } from '../utils/config';
 
 export const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -18,7 +19,7 @@ export const Login: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/login', {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),

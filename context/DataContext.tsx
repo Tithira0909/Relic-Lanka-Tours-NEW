@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AppData, Tour, SocialMedia, GalleryImage } from '../types';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from '../utils/config';
 
 // Initial Empty Data - Will be fetched
 const INITIAL_SOCIAL_MEDIA: SocialMedia = {
@@ -37,7 +38,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchTours = async () => {
     try {
-      const res = await fetch('/api/tours');
+      const res = await fetch(`${API_BASE_URL}/api/tours`);
       const tours = await res.json();
       setData(prev => ({ ...prev, tours }));
     } catch (err) {
@@ -47,7 +48,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchGallery = async () => {
       try {
-          const res = await fetch('/api/gallery');
+          const res = await fetch(`${API_BASE_URL}/api/gallery`);
           const gallery = await res.json();
           setData(prev => ({ ...prev, gallery }));
       } catch (err) {
@@ -57,7 +58,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchSettings = async () => {
       try {
-          const res = await fetch('/api/settings');
+          const res = await fetch(`${API_BASE_URL}/api/settings`);
           const settings = await res.json();
           setData(prev => ({
               ...prev,
@@ -90,7 +91,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addTour = async (tour: Tour) => {
     try {
-        const res = await fetch('/api/tours', {
+        const res = await fetch(`${API_BASE_URL}/api/tours`, {
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify(tour)
@@ -105,7 +106,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateHeroImages = async (images: string[]) => {
       try {
-          const res = await fetch('/api/settings', {
+          const res = await fetch(`${API_BASE_URL}/api/settings`, {
               method: 'POST',
               headers: authHeaders,
               body: JSON.stringify({ hero_images: JSON.stringify(images) })
@@ -120,7 +121,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateWhyChooseUsImages = async (images: string[]) => {
     try {
-        const res = await fetch('/api/settings', {
+        const res = await fetch(`${API_BASE_URL}/api/settings`, {
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify({ why_choose_us_images: JSON.stringify(images) })
@@ -135,7 +136,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateAdventureBanner = async (url: string) => {
     try {
-        const res = await fetch('/api/settings', {
+        const res = await fetch(`${API_BASE_URL}/api/settings`, {
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify({ adventure_banner: url })
@@ -150,7 +151,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateTour = async (updatedTour: Tour) => {
      try {
-        const res = await fetch(`/api/tours/${updatedTour.id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/tours/${updatedTour.id}`, {
             method: 'PUT',
             headers: authHeaders,
             body: JSON.stringify(updatedTour)
@@ -165,7 +166,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteTour = async (id: string) => {
      try {
-        const res = await fetch(`/api/tours/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/tours/${id}`, {
             method: 'DELETE',
             headers: authHeaders
         });
@@ -179,7 +180,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateSocialMedia = async (social: SocialMedia) => {
      try {
-        const res = await fetch('/api/settings', {
+        const res = await fetch(`${API_BASE_URL}/api/settings`, {
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify(social)
@@ -194,7 +195,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addToGallery = async (image: GalleryImage) => {
      try {
-        const res = await fetch('/api/gallery', {
+        const res = await fetch(`${API_BASE_URL}/api/gallery`, {
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify(image)
@@ -209,7 +210,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const removeFromGallery = async (id: string) => {
      try {
-        const res = await fetch(`/api/gallery/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/gallery/${id}`, {
             method: 'DELETE',
             headers: authHeaders
         });

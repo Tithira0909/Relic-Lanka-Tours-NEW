@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Trash2, Edit, Plus, Save, X } from 'lucide-react';
+import { API_BASE_URL } from '../../utils/config';
 
 interface MapPin {
     id: string;
@@ -25,7 +26,7 @@ const MapManager: React.FC = () => {
 
     const fetchPins = async () => {
         try {
-            const res = await axios.get('http://localhost:3001/api/map_pins');
+            const res = await axios.get(`${API_BASE_URL}/api/map_pins`);
             setPins(res.data);
         } catch (err) {
             console.error("Failed to fetch map pins", err);
@@ -57,7 +58,7 @@ const MapManager: React.FC = () => {
         setUploading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:3001/api/upload', formData, {
+            const res = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (isEdit && editingPin) {
@@ -77,7 +78,7 @@ const MapManager: React.FC = () => {
         const token = localStorage.getItem('token');
         try {
             if (editingPin) {
-                await axios.put(`http://localhost:3001/api/map_pins/${editingPin.id}`, editingPin, {
+                await axios.put(`${API_BASE_URL}/api/map_pins/${editingPin.id}`, editingPin, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 setEditingPin(null);
@@ -87,7 +88,7 @@ const MapManager: React.FC = () => {
                     return;
                 }
                 const pin = { ...newPin, id: Date.now().toString() };
-                await axios.post('http://localhost:3001/api/map_pins', pin, {
+                await axios.post(`${API_BASE_URL}/api/map_pins`, pin, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 setIsAdding(false);
@@ -104,7 +105,7 @@ const MapManager: React.FC = () => {
         if (!confirm("Are you sure?")) return;
         const token = localStorage.getItem('token');
         try {
-            await axios.delete(`http://localhost:3001/api/map_pins/${id}`, {
+            await axios.delete(`${API_BASE_URL}/api/map_pins/${id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             fetchPins();

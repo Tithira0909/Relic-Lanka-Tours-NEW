@@ -3,6 +3,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { API_BASE_URL } from '../../utils/config';
 
 interface Review {
     id: string;
@@ -32,7 +33,7 @@ export const TravelerStories: React.FC = () => {
 
     const fetchReviews = async () => {
         try {
-            const res = await axios.get('/api/reviews');
+            const res = await axios.get(`${API_BASE_URL}/api/reviews`);
             setReviews(res.data);
         } catch (err) {
             console.error("Failed to fetch reviews", err);
@@ -53,7 +54,7 @@ export const TravelerStories: React.FC = () => {
         }
 
         try {
-            await axios.post('/api/reviews', formData, {
+            await axios.post(`${API_BASE_URL}/api/reviews`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setSubmitSuccess(true);

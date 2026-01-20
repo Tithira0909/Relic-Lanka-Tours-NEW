@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { MapPin as MapPinIcon, X, ArrowRight, Quote, Palmtree, CloudSun, Coffee } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { API_BASE_URL } from '../utils/config';
 
 interface MapPin {
     id: string;
@@ -109,7 +110,7 @@ export const InteractiveMap: React.FC = () => {
     const [selectedPin, setSelectedPin] = useState<MapPin | null>(null);
 
     useEffect(() => {
-        axios.get('http://localhost:3001/api/map_pins')
+        axios.get(`${API_BASE_URL}/api/map_pins`)
             .then(res => setPins(res.data))
             .catch(err => console.error(err));
     }, []);

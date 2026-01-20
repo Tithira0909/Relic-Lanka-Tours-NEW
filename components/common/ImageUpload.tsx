@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Upload, Loader2, X } from 'lucide-react';
+import { API_BASE_URL } from '../../utils/config';
 
 interface ImageUploadProps {
   value: string;
@@ -22,7 +23,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, class
     formData.append('image', file);
 
     try {
-      const res = await fetch('/api/upload', {
+      const res = await fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`

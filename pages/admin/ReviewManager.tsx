@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Check, X, Trash2, Clock, Star } from 'lucide-react';
+import { API_BASE_URL } from '../../utils/config';
 import { Button } from '../../components/ui/Button';
 
 interface Review {
@@ -26,7 +27,7 @@ export const ReviewManager: React.FC = () => {
 
     const fetchReviews = async () => {
         try {
-            const res = await axios.get('/api/admin/reviews', {
+            const res = await axios.get(`${API_BASE_URL}/api/admin/reviews`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setReviews(res.data);
@@ -39,7 +40,7 @@ export const ReviewManager: React.FC = () => {
 
     const updateStatus = async (id: string, status: 'approved' | 'rejected') => {
         try {
-            await axios.put(`/api/admin/reviews/${id}`, { status }, {
+            await axios.put(`${API_BASE_URL}/api/admin/reviews/${id}`, { status }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setReviews(reviews.map(r => r.id === id ? { ...r, status } : r));
@@ -51,7 +52,7 @@ export const ReviewManager: React.FC = () => {
     const deleteReview = async (id: string) => {
         if (!confirm("Are you sure you want to delete this review?")) return;
         try {
-            await axios.delete(`/api/admin/reviews/${id}`, {
+            await axios.delete(`${API_BASE_URL}/api/admin/reviews/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setReviews(reviews.filter(r => r.id !== id));

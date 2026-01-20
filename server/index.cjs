@@ -17,8 +17,8 @@ const fs = require('fs');
  * 3. Comment out `const db = require('./db.cjs');`
  * 4. Uncomment `const db = require('./db_mysql.cjs');`
  */
-const db = require('./db.cjs'); // SQLite
-// const db = require('./db_mysql.cjs'); // MySQL
+//const db = require('./db.cjs'); // SQLite
+ const db = require('./db_mysql.cjs'); // MySQL
 
 const dotenv = require('dotenv');
 

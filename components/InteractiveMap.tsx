@@ -109,7 +109,7 @@ export const InteractiveMap: React.FC = () => {
     const [selectedPin, setSelectedPin] = useState<MapPin | null>(null);
 
     useEffect(() => {
-        axios.get('http://localhost:3001/api/map_pins')
+        axios.get('/api/map_pins')
             .then(res => setPins(res.data))
             .catch(err => console.error(err));
     }, []);

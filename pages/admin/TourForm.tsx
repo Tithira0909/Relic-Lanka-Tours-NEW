@@ -26,6 +26,7 @@ export const TourForm: React.FC = () => {
     rating: 5,
     reviews: 0,
     image: '',
+    video_url: '',
     description: '',
     highlights: [],
     itinerary: [],
@@ -88,8 +89,47 @@ export const TourForm: React.FC = () => {
   const addItineraryDay = () => {
     setFormData(prev => ({
       ...prev,
-      itinerary: [...prev.itinerary, { day: prev.itinerary.length + 1, title: '', description: '' }]
+      itinerary: [...prev.itinerary, { day: prev.itinerary.length + 1, title: '', description: '', images: [] }]
     }));
+  };
+
+  const handleItineraryImageAdd = (index: number, url: string) => {
+    if (!url) return;
+    setFormData(prev => {
+      const newItinerary = prev.itinerary.map((day, i) => {
+        if (i === index) {
+          return { ...day, images: [...(day.images || []), url] };
+        }
+        return day;
+      });
+      return { ...prev, itinerary: newItinerary };
+    });
+  };
+
+  const handleItineraryImageChange = (dayIndex: number, imgIndex: number, url: string) => {
+    setFormData(prev => {
+      const newItinerary = prev.itinerary.map((day, i) => {
+        if (i === dayIndex && day.images) {
+          const newImages = [...day.images];
+          newImages[imgIndex] = url;
+          return { ...day, images: newImages };
+        }
+        return day;
+      });
+      return { ...prev, itinerary: newItinerary };
+    });
+  };
+
+  const handleItineraryImageRemove = (dayIndex: number, imgIndex: number) => {
+    setFormData(prev => {
+      const newItinerary = prev.itinerary.map((day, i) => {
+        if (i === dayIndex && day.images) {
+          return { ...day, images: day.images.filter((_, idx) => idx !== imgIndex) };
+        }
+        return day;
+      });
+      return { ...prev, itinerary: newItinerary };
+    });
   };
 
   const removeItineraryDay = (index: number) => {
@@ -234,6 +274,10 @@ export const TourForm: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Main Image</label>
                 <ImageUpload value={formData.image} onChange={(url) => setFormData(prev => ({ ...prev, image: url }))} />
             </div>
+            <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Video URL (YouTube/Vimeo Embed link)</label>
+                <input type="text" name="video_url" value={formData.video_url || ''} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" placeholder="https://www.youtube.com/embed/..." />
+            </div>
              <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea required name="description" value={formData.description} onChange={handleChange} rows={4} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" />
@@ -335,6 +379,27 @@ export const TourForm: React.FC = () => {
                         <div className="space-y-2">
                             <input placeholder="Title (e.g., Arrival in Colombo)" value={day.title} onChange={(e) => handleItineraryChange(idx, 'title', e.target.value)} className="w-full px-4 py-2 border rounded-lg" />
                             <textarea placeholder="Description" rows={2} value={day.description} onChange={(e) => handleItineraryChange(idx, 'description', e.target.value)} className="w-full px-4 py-2 border rounded-lg" />
+
+                            {/* Daily Images */}
+                            <div className="mt-4 border-t pt-4">
+                                <h4 className="text-sm font-semibold text-gray-700 mb-2">Daily Images</h4>
+                                <div className="space-y-2">
+                                    {(day.images || []).map((imgUrl, imgIdx) => (
+                                        <div key={imgIdx} className="flex gap-2 items-center">
+                                            <div className="flex-1">
+                                                <ImageUpload value={imgUrl} onChange={(url) => handleItineraryImageChange(idx, imgIdx, url)} />
+                                            </div>
+                                            <button type="button" onClick={() => handleItineraryImageRemove(idx, imgIdx)} className="text-red-500 p-2 hover:bg-red-50 rounded">
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <div className="mt-2">
+                                        <p className="text-sm text-gray-500 mb-1">Upload a new image to append it to this day:</p>
+                                        <ImageUpload value="" onChange={(url) => handleItineraryImageAdd(idx, url)} placeholder="Upload an image to add..." />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ))}

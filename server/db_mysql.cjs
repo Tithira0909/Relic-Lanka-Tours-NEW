@@ -82,9 +82,17 @@ const initDB = async () => {
                 includedActivities JSON,
                 destinations JSON,
                 activities JSON,
-                itinerary JSON
+                itinerary JSON,
+                video_url TEXT
             )
         `);
+
+        // Migrations
+        try {
+            await connection.query('ALTER TABLE tours ADD COLUMN video_url TEXT');
+        } catch (e) {
+            // Ignore error if column already exists
+        }
 
         // Gallery
         await connection.query(`

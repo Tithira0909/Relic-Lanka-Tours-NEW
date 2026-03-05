@@ -140,7 +140,7 @@ app.get('/api/tours', async (req, res) => {
 // Create Tour (Protected)
 app.post('/api/tours', authenticateToken, async (req, res) => {
   const t = req.body;
-  const sql = `INSERT INTO tours VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const sql = `INSERT INTO tours VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   try {
       await db.query(sql, [
@@ -156,7 +156,8 @@ app.post('/api/tours', authenticateToken, async (req, res) => {
         t.price_semi_luxury || 0,
         JSON.stringify(t.hotels_luxury || []),
         JSON.stringify(t.hotels_semi_luxury || []),
-        t.price_child || 0
+        t.price_child || 0,
+        t.video_url || ''
       ]);
       res.status(201).json(t);
   } catch (err) {
@@ -174,7 +175,7 @@ app.put('/api/tours/:id', authenticateToken, async (req, res) => {
     image = ?, description = ?, highlights = ?, inclusions = ?,
     includedActivities = ?, destinations = ?, activities = ?, itinerary = ?,
     price_luxury = ?, price_semi_luxury = ?, hotels_luxury = ?, hotels_semi_luxury = ?,
-    price_child = ?
+    price_child = ?, video_url = ?
     WHERE id = ?`;
 
   try {
@@ -192,6 +193,7 @@ app.put('/api/tours/:id', authenticateToken, async (req, res) => {
         JSON.stringify(t.hotels_luxury || []),
         JSON.stringify(t.hotels_semi_luxury || []),
         t.price_child || 0,
+        t.video_url || '',
         id
       ]);
       res.json({ message: "Tour updated", changes: result.affectedRows });

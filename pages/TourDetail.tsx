@@ -9,7 +9,6 @@ import { TourCard } from '../components/features/TourCard';
 
 export const TourDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState<'overview' | 'itinerary' | 'destinations' | 'activities'>('overview');
   const { tours } = useData();
   const [selectedPackage, setSelectedPackage] = useState<'luxury' | 'semi_luxury'>('luxury');
   const [adults, setAdults] = useState(2);
@@ -76,163 +75,172 @@ export const TourDetail: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           
           {/* Main Content */}
-          <div className="lg:col-span-2">
-            {/* Tabs */}
-            <div className="flex border-b border-gray-100 mb-8 overflow-x-auto">
-              {[
-                  { id: 'overview', label: 'Overview' },
-                  { id: 'itinerary', label: 'Itinerary' },
-                  { id: 'destinations', label: 'Destinations' },
-                  { id: 'activities', label: 'Activities' },
-              ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`pb-4 px-4 font-medium text-lg relative transition-colors whitespace-nowrap ${
-                      activeTab === tab.id ? 'text-ceylon-700' : 'text-gray-400 hover:text-gray-600'
-                    }`}
-                  >
-                    {tab.label}
-                    {activeTab === tab.id && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-ceylon-700" />}
-                  </button>
-              ))}
-            </div>
+          <div className="lg:col-span-2 space-y-12">
 
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {activeTab === 'overview' && (
-                <div className="space-y-8">
-                  <div>
-                    <h3 className="text-2xl font-serif font-bold mb-4 text-primary">About this tour</h3>
-                    <p className="text-gray-600 leading-relaxed text-lg">{tour.description}</p>
+            {/* Overview Section */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-8">
+              <div>
+                <h3 className="text-2xl font-serif font-bold mb-4 text-primary">About this tour</h3>
+                <p className="text-gray-600 leading-relaxed text-lg">{tour.description}</p>
+              </div>
+
+              {tour.video_url && (
+                <div className="mt-8">
+                  <h3 className="text-2xl font-serif font-bold mb-4 text-primary">Tour Video</h3>
+                  <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+                    <iframe
+                      src={tour.video_url}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title="Tour Video"
+                    ></iframe>
                   </div>
-                  
-                  <div>
-                    <h3 className="text-2xl font-serif font-bold mb-4 text-primary">Highlights</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {tour.highlights.map((highlight, idx) => (
-                        <div key={idx} className="flex items-start">
-                          <CheckCircle className="w-5 h-5 text-ceylon-600 mr-3 mt-1 flex-shrink-0" />
-                          <span className="text-gray-700">{highlight}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {tour.inclusions && tour.inclusions.length > 0 && (
-                      <div className="bg-paper p-6 rounded-2xl">
-                        <h3 className="font-bold text-primary mb-4 text-xl">Includes</h3>
-                        <div className="text-sm text-gray-500 grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {tour.inclusions.map((inc, i) => (
-                              <span key={i} className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> {inc}</span>
-                          ))}
-                        </div>
-                         {tour.includedActivities && tour.includedActivities.length > 0 && (
-                             <div className="mt-4 pt-4 border-t border-gray-100">
-                                 <h4 className="font-bold text-primary mb-2">Included Activities</h4>
-                                 <div className="flex flex-wrap gap-2">
-                                     {tour.includedActivities.map((act, i) => (
-                                         <span key={i} className="px-3 py-1 bg-ceylon-50 text-ceylon-700 rounded-full text-xs font-medium">{act}</span>
-                                     ))}
-                                 </div>
-                             </div>
-                         )}
-                      </div>
-                  )}
-
-                  {/* Hotel Details for Selected Package */}
-                  {currentHotels && currentHotels.length > 0 && (
-                      <div className="mt-8">
-                          <h3 className="text-2xl font-serif font-bold mb-4 text-primary">
-                              {selectedPackage === 'luxury' ? 'Luxury Hotels' : 'Semi-Luxury Hotels'}
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              {currentHotels.map((hotel, idx) => (
-                                  <div key={idx} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
-                                      <div className="h-48 overflow-hidden">
-                                          <img src={hotel.image} alt={hotel.name} className="w-full h-full object-cover" />
-                                      </div>
-                                      <div className="p-4">
-                                          <h4 className="font-bold text-primary">{hotel.name}</h4>
-                                      </div>
-                                  </div>
-                              ))}
-                          </div>
-                      </div>
-                  )}
                 </div>
               )}
 
-              {activeTab === 'itinerary' && (
-                <div className="space-y-0">
-                  {tour.itinerary.map((item, idx) => (
-                    <div key={idx} className="relative pl-8 pb-12 border-l border-gray-200 last:border-0 last:pb-0">
-                      <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-white border-4 border-ceylon-600" />
-                      <span className="text-sm font-bold text-ceylon-700 uppercase tracking-wider mb-1 block">Day {item.day}</span>
-                      <h4 className="text-xl font-bold text-primary mb-2">{item.title}</h4>
-                      <p className="text-gray-600">{item.description}</p>
+              <div>
+                <h3 className="text-2xl font-serif font-bold mb-4 text-primary">Highlights</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {tour.highlights.map((highlight, idx) => (
+                    <div key={idx} className="flex items-start">
+                      <CheckCircle className="w-5 h-5 text-ceylon-600 mr-3 mt-1 flex-shrink-0" />
+                      <span className="text-gray-700">{highlight}</span>
                     </div>
                   ))}
                 </div>
-              )}
+              </div>
 
-              {activeTab === 'destinations' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {tour.destinations && tour.destinations.length > 0 ? (
-                        tour.destinations.map((dest, idx) => (
-                            <div key={idx} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-md transition-all">
-                                <div className="h-48 overflow-hidden">
-                                    <img src={dest.image} alt={dest.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              {tour.inclusions && tour.inclusions.length > 0 && (
+                  <div className="bg-paper p-6 rounded-2xl">
+                    <h3 className="font-bold text-primary mb-4 text-xl">Includes</h3>
+                    <div className="text-sm text-gray-500 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {tour.inclusions.map((inc, i) => (
+                          <span key={i} className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> {inc}</span>
+                      ))}
+                    </div>
+                     {tour.includedActivities && tour.includedActivities.length > 0 && (
+                         <div className="mt-4 pt-4 border-t border-gray-100">
+                             <h4 className="font-bold text-primary mb-2">Included Activities</h4>
+                             <div className="flex flex-wrap gap-2">
+                                 {tour.includedActivities.map((act, i) => (
+                                     <span key={i} className="px-3 py-1 bg-ceylon-50 text-ceylon-700 rounded-full text-xs font-medium">{act}</span>
+                                 ))}
+                             </div>
+                         </div>
+                     )}
+                  </div>
+              )}
+            </motion.div>
+
+            {/* Combined Itinerary & Images */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }}>
+              <h3 className="text-2xl font-serif font-bold mb-6 text-primary border-b pb-4">Itinerary</h3>
+              <div className="space-y-12">
+                {tour.itinerary.map((item, idx) => (
+                  <div key={idx} className="relative pl-8 border-l border-gray-200">
+                    <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-white border-4 border-ceylon-600" />
+                    <span className="text-sm font-bold text-ceylon-700 uppercase tracking-wider mb-1 block">Day {item.day}</span>
+                    <h4 className="text-xl font-bold text-primary mb-2">{item.title}</h4>
+                    <p className="text-gray-600 mb-4">{item.description}</p>
+
+                    {item.images && item.images.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                        {item.images.map((imgUrl, imgIdx) => (
+                          <div key={imgIdx} className="h-40 overflow-hidden rounded-xl shadow-sm">
+                            <img src={imgUrl} alt={`Day ${item.day} image ${imgIdx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Destinations & Activities Summaries */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-t pt-12">
+              <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                <h3 className="text-2xl font-serif font-bold mb-6 text-primary">Destinations</h3>
+                <div className="space-y-4">
+                  {tour.destinations && tour.destinations.length > 0 ? (
+                    tour.destinations.map((dest, idx) => (
+                        <div key={idx} className="flex gap-4 items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
+                            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                <img src={dest.image} alt={dest.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-primary">{dest.name}</h4>
+                                <p className="text-xs text-gray-500 line-clamp-2">{dest.description}</p>
+                            </div>
+                        </div>
+                    ))
+                  ) : (
+                      <div className="text-gray-500 text-sm">No destination info available.</div>
+                  )}
+                </div>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                <h3 className="text-2xl font-serif font-bold mb-6 text-primary">Activities</h3>
+                <div className="grid grid-cols-2 gap-4">
+                    {tour.activities && tour.activities.length > 0 ? (
+                        tour.activities.map((act, idx) => (
+                            <div key={idx} className="bg-gray-50 rounded-xl overflow-hidden shadow-sm border border-gray-100">
+                                <div className="h-24 overflow-hidden">
+                                    <img src={act.image} alt={act.name} className="w-full h-full object-cover" />
                                 </div>
-                                <div className="p-5">
-                                    <h4 className="text-xl font-bold text-primary mb-2 flex items-center">
-                                        <Flag className="w-4 h-4 mr-2 text-ceylon-600" /> {dest.name}
-                                    </h4>
-                                    <p className="text-gray-600 text-sm">{dest.description}</p>
+                                <div className="p-2 text-center">
+                                    <h4 className="font-bold text-xs text-primary">{act.name}</h4>
                                 </div>
                             </div>
                         ))
-                      ) : (
-                          <div className="col-span-2 text-center text-gray-500 py-10">No detailed destination info available.</div>
-                      )}
-                  </div>
-              )}
+                    ) : (
+                        <div className="col-span-2 text-gray-500 text-sm">No activity info available.</div>
+                    )}
+                </div>
+              </motion.div>
+            </div>
 
-              {activeTab === 'activities' && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                       {tour.activities && tour.activities.length > 0 ? (
-                           tour.activities.map((act, idx) => (
-                               <div key={idx} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 group">
-                                   <div className="h-40 overflow-hidden">
-                                       <img src={act.image} alt={act.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                   </div>
-                                   <div className="p-4 text-center">
-                                       <h4 className="font-bold text-primary flex items-center justify-center">
-                                           <Camera className="w-4 h-4 mr-2 text-ceylon-600" /> {act.name}
-                                       </h4>
-                                   </div>
-                               </div>
-                           ))
-                       ) : (
-                           <div className="col-span-3 text-center text-gray-500 py-10">No detailed activity info available.</div>
-                       )}
-                  </div>
-              )}
-
-            </motion.div>
+            {/* Hotels Section */}
+            {currentHotels && currentHotels.length > 0 && (
+                <div className="mt-8 border-t pt-12">
+                    <h3 className="text-2xl font-serif font-bold mb-4 text-primary">
+                        {selectedPackage === 'luxury' ? 'Luxury Hotels' : 'Semi-Luxury Hotels'}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {currentHotels.map((hotel, idx) => (
+                            <div key={idx} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+                                <div className="h-48 overflow-hidden">
+                                    <img src={hotel.image} alt={hotel.name} className="w-full h-full object-cover" />
+                                </div>
+                                <div className="p-4">
+                                    <h4 className="font-bold text-primary">{hotel.name}</h4>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
           </div>
 
           {/* Sidebar Booking */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
                <div className="mb-6">
-                 <span className="text-gray-400 text-sm">Total Price</span>
-                 <div className="flex items-baseline">
-                   <span className="text-4xl font-serif font-bold text-primary">${getPrice()}</span>
+                 <span className="text-gray-500 text-sm uppercase tracking-wider block mb-1">Starting at</span>
+                 <div className="flex items-baseline mb-1">
+                   <span className="text-4xl font-serif font-bold text-primary">LKR {getPrice().toLocaleString()}</span>
+                 </div>
+                 <span className="text-gray-400 text-sm">Per Person</span>
+               </div>
+
+               <div className="flex items-center mb-6 mt-4 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                 <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
+                    <img src="https://ui-avatars.com/api/?name=Devmini+Gunaratne&background=random" alt="Devmini Gunaratne" className="w-full h-full object-cover" />
+                 </div>
+                 <div>
+                    <h5 className="font-bold text-sm text-primary">Hello! I'm Devmini Gunaratne</h5>
+                    <p className="text-xs text-gray-500 leading-tight">Your dedicated Destination Expert. Let's plan your dream getaway!</p>
                  </div>
                </div>
 
@@ -306,8 +314,13 @@ export const TourDetail: React.FC = () => {
                      </div>
                  </div>
 
-                 <Button size="lg" className="w-full mt-2">Book Tour</Button>
-                 <p className="text-xs text-center text-gray-400 mt-3">No payment required yet.</p>
+                 <div className="pt-2">
+                     <Button size="lg" className="w-full bg-green-500 hover:bg-green-600 text-white border-0 shadow-md">Book Now</Button>
+                     <div className="text-center mt-3">
+                         <a href="#" className="text-xs text-gray-500 italic hover:text-gray-700 underline">Have a coupon?</a>
+                     </div>
+                 </div>
+                 <p className="text-xs text-center text-gray-400 mt-4">*Our reply time is almost instant</p>
                </form>
                
                <div className="mt-8 pt-6 border-t border-gray-100">

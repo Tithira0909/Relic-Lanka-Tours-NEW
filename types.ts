@@ -28,9 +28,10 @@ export interface Tour {
   rating: number;
   reviews: number;
   image: string;
+  video_url?: string;
   description: string;
   highlights: string[];
-  itinerary: { day: number; title: string; description: string }[];
+  itinerary: { day: number; title: string; description: string; images?: string[] }[];
   inclusions: string[];
   includedActivities: string[];
   destinations: TourDestination[];

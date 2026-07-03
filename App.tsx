@@ -1,14 +1,33 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { DataProvider } from './context/DataContext';
+import { AuthProvider } from './context/AuthContext';
+
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
+import { SocialBubbles } from './components/common/SocialBubbles';
+import { LoadingScreen } from './components/ui/LoadingScreen';
+
 import { Home } from './pages/Home';
 import { Tours } from './pages/Tours';
 import { TourDetail } from './pages/TourDetail';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { Gallery } from './pages/Gallery';
+import { Login } from './pages/Login';
+
+// Admin Pages
+import { AdminLayout } from './pages/admin/AdminLayout';
+import { Dashboard } from './pages/admin/Dashboard';
+import { TourManager } from './pages/admin/TourManager';
+import { TourForm } from './pages/admin/TourForm';
+import { GalleryManager } from './pages/admin/GalleryManager';
+import MapManager from './pages/admin/MapManager';
+import { ReviewManager } from './pages/admin/ReviewManager';
+import { Settings } from './pages/admin/Settings';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { LanguageProvider } from './context/LanguageContext';
 
 // ScrollToTop Component
 const ScrollToTop = () => {
@@ -19,29 +38,69 @@ const ScrollToTop = () => {
   return null;
 };
 
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <div className="flex flex-col min-h-screen font-sans text-primary">
+        <ScrollToTop />
+        <Navbar />
+        <main className="flex-grow">
+            {children}
+        </main>
+        <Footer />
+        <SocialBubbles />
+    </div>
+);
+
+
 const App: React.FC = () => {
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
+  const handleLoadComplete = useCallback(() => setIsLoading(false), []);
 
   return (
-    <div className="flex flex-col min-h-screen font-sans text-primary">
-      <ScrollToTop />
-      <Navbar />
-      <main className="flex-grow">
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Home />} />
-            <Route path="/tours" element={<Tours />} />
-            <Route path="/tours/:id" element={<TourDetail />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="*" element={<div className="h-screen flex items-center justify-center text-3xl font-serif">404 - Not Found</div>} />
-          </Routes>
-        </AnimatePresence>
-      </main>
-      <Footer />
-    </div>
+    <>
+      <AnimatePresence>
+        {isLoading && <LoadingScreen onComplete={handleLoadComplete} />}
+      </AnimatePresence>
+
+      {!isLoading && (
+        <AuthProvider>
+          <LanguageProvider>
+            <DataProvider>
+              <AnimatePresence mode="wait">
+                <div key={location.pathname}>
+                  <Routes location={location}>
+                    {/* Public Routes */}
+                    <Route path="/" element={<Layout><Home /></Layout>} />
+                    <Route path="/tours" element={<Layout><Tours /></Layout>} />
+                    <Route path="/tours/:id" element={<Layout><TourDetail /></Layout>} />
+                    <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
+                    <Route path="/about" element={<Layout><About /></Layout>} />
+                    <Route path="/contact" element={<Layout><Contact /></Layout>} />
+                    <Route path="/login" element={<Layout><Login /></Layout>} />
+
+                    {/* Admin Routes */}
+                    <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+                        <Route index element={<Dashboard />} />
+                        <Route path="tours" element={<TourManager />} />
+                        <Route path="tours/new" element={<TourForm />} />
+                        <Route path="tours/edit/:id" element={<TourForm />} />
+                        <Route path="gallery" element={<GalleryManager />} />
+                        <Route path="map" element={<MapManager />} />
+                        <Route path="reviews" element={<ReviewManager />} />
+                        <Route path="settings" element={<Settings />} />
+                    </Route>
+
+                    <Route path="*" element={<Layout><div className="h-screen flex items-center justify-center text-3xl font-serif">404 - Not Found</div></Layout>} />
+                  </Routes>
+                </div>
+              </AnimatePresence>
+            </DataProvider>
+          </LanguageProvider>
+        </AuthProvider>
+      )}
+    </>
   );
 };
 
 export default App;
+

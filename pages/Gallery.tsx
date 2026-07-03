@@ -2,23 +2,10 @@ import React, { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
+import { useData } from '../context/DataContext';
 
 // Register Plugin
 gsap.registerPlugin(ScrollTrigger);
-
-// Mock Data for Gallery
-const spotlightItems = [
-  { name: "Silent Arc", img: "https://images.unsplash.com/photo-1546708773-e57c8d98d28c?q=80&w=1000&auto=format&fit=crop" }, // Ella
-  { name: "Bloom 24", img: "https://images.unsplash.com/photo-1588258524675-802dc211843b?q=80&w=1000&auto=format&fit=crop" }, // Train
-  { name: "Glass Fade", img: "https://images.unsplash.com/photo-1534947963289-4a413d96928e?q=80&w=1000&auto=format&fit=crop" }, // Sigiriya
-  { name: "Echo 9", img: "https://images.unsplash.com/photo-1579261056586-2a86847c2167?q=80&w=1000&auto=format&fit=crop" }, // Elephant
-  { name: "Velvet Loop", img: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?q=80&w=1000&auto=format&fit=crop" }, // Beach
-  { name: "Field Two", img: "https://images.unsplash.com/photo-1586795843472-a42bc7015f01?q=80&w=1000&auto=format&fit=crop" }, // Temple
-  { name: "Pale Thread", img: "https://images.unsplash.com/photo-1536098054483-4d436c646061?q=80&w=1000&auto=format&fit=crop" }, // Tea
-  { name: "Stillroom", img: "https://images.unsplash.com/photo-1590458925501-7294473855a8?q=80&w=1000&auto=format&fit=crop" }, // Waterfall
-  { name: "Ghostline", img: "https://images.unsplash.com/photo-1548685116-2c5e533c3a0b?q=80&w=1000&auto=format&fit=crop" }, // Fishing
-  { name: "Mono 73", img: "https://images.unsplash.com/photo-1562947477-d40b49f4c39f?q=80&w=1000&auto=format&fit=crop" }, // Fort
-];
 
 const config = {
   gap: 0.08,
@@ -27,6 +14,17 @@ const config = {
 };
 
 export const Gallery: React.FC = () => {
+  const { gallery, heroImages } = useData();
+  const spotlightItems = gallery.map(item => ({
+      name: item.caption || "Gallery Image",
+      img: item.url
+  }));
+
+  // Fallback if gallery is empty
+  if (spotlightItems.length === 0) {
+      spotlightItems.push({ name: "No Images", img: "https://picsum.photos/800/600" });
+  }
+
   const containerRef = useRef<HTMLDivElement>(null);
   const titlesContainerRef = useRef<HTMLDivElement>(null);
   const imagesContainerRef = useRef<HTMLDivElement>(null);
@@ -64,6 +62,7 @@ export const Gallery: React.FC = () => {
       // Initial States
       gsap.set(images, { opacity: 0 });
       if(titles[0]) gsap.set(titles[0], { opacity: 1 });
+      if (titlesContainerRef.current) gsap.set(titlesContainerRef.current, { opacity: 0 });
 
       // Arc Calculation
       const containerWidth = window.innerWidth * 0.3;
@@ -120,6 +119,7 @@ export const Gallery: React.FC = () => {
             if (titlesContainerRef.current) {
                 titlesContainerRef.current.style.setProperty("--before-opacity", "0");
                 titlesContainerRef.current.style.setProperty("--after-opacity", "0");
+                gsap.set(titlesContainerRef.current, { opacity: 0 });
             }
           } 
           // Phase 2: Transition (0.2 - 0.25)
@@ -134,6 +134,7 @@ export const Gallery: React.FC = () => {
             if (titlesContainerRef.current) {
                 titlesContainerRef.current.style.setProperty("--before-opacity", "1");
                 titlesContainerRef.current.style.setProperty("--after-opacity", "1");
+                gsap.set(titlesContainerRef.current, { opacity: 1 });
             }
           }
           // Phase 3: Gallery Scroll (0.25 - 0.95)
@@ -146,6 +147,7 @@ export const Gallery: React.FC = () => {
             if (titlesContainerRef.current) {
                 titlesContainerRef.current.style.setProperty("--before-opacity", "1");
                 titlesContainerRef.current.style.setProperty("--after-opacity", "1");
+                gsap.set(titlesContainerRef.current, { opacity: 1 });
             }
 
             // Move Titles
@@ -195,7 +197,7 @@ export const Gallery: React.FC = () => {
                 
                 // Change BG Image
                 if (bgImgRef.current) {
-                    bgImgRef.current.src = spotlightItems[closestIndex].img;
+                   bgImgRef.current.src = spotlightItems[closestIndex].img;
                 }
                 currentActiveIndex = closestIndex;
             }
@@ -220,10 +222,20 @@ export const Gallery: React.FC = () => {
     }, containerRef); // Scope GSAP to container
 
     return () => ctx.revert();
-  }, []);
+  }, [spotlightItems]);
 
   return (
-    <div ref={containerRef} className="spotlight relative w-full h-screen overflow-hidden bg-white text-primary">
+    <div ref={containerRef} className="spotlight relative w-full h-screen overflow-hidden bg-black text-white">
+      {/* Global Hero Background */}
+      <div className="absolute inset-0 z-0">
+          <img
+            src={heroImages.length > 0 ? heroImages[0] : "https://picsum.photos/1920/1080"}
+            className="w-full h-full object-cover opacity-40"
+            alt="Hero Background"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"></div>
+      </div>
+
       <style>{`
         .spotlight-titles-container::before,
         .spotlight-titles-container::after {
@@ -238,12 +250,12 @@ export const Gallery: React.FC = () => {
         }
         .spotlight-titles-container::before {
           top: 0;
-          background: linear-gradient(to bottom, #ffffff 10%, transparent);
+          background: linear-gradient(to bottom, transparent 10%, transparent);
           opacity: var(--before-opacity, 0);
         }
         .spotlight-titles-container::after {
           bottom: 0;
-          background: linear-gradient(to top, #ffffff 10%, transparent);
+          background: linear-gradient(to top, transparent 10%, transparent);
           opacity: var(--after-opacity, 0);
         }
         .spotlight-img {
@@ -265,13 +277,13 @@ export const Gallery: React.FC = () => {
         }
       `}</style>
 
-      {/* Background Image Layer */}
-      <div className="spotlight-bg-img absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] h-[70%] z-[1] overflow-hidden rounded-3xl scale-0 origin-center pointer-events-none">
+      {/* Dynamic Gallery Image Card */}
+      <div className="spotlight-bg-img absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[60%] h-[70%] z-[1] overflow-hidden rounded-3xl scale-0 origin-center pointer-events-none shadow-2xl border border-white/10">
         <img 
           ref={bgImgRef}
-          src={spotlightItems[0].img} 
-          className="w-full h-full object-cover transition-transform duration-1000 ease-in-out filter brightness-75"
-          alt="Background" 
+          src={spotlightItems[0]?.img || ''}
+          className="w-full h-full object-cover transition-transform duration-1000 ease-in-out filter brightness-90"
+          alt="Gallery Spotlight"
         />
       </div>
 
@@ -284,7 +296,7 @@ export const Gallery: React.FC = () => {
       {/* Intro Text */}
       <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none z-20 mix-blend-difference text-white">
         <h1 ref={introTextRef1} className="spotlight-intro-text text-[12vw] font-serif leading-none whitespace-nowrap">
-          CEYLON
+          RELIC LANKA
         </h1>
         <h1 ref={introTextRef2} className="spotlight-intro-text text-[12vw] font-serif leading-none italic whitespace-nowrap text-ceylon-300">
           GALLERY
@@ -297,7 +309,7 @@ export const Gallery: React.FC = () => {
              {spotlightItems.map((item, i) => (
                <h1 
                 key={i} 
-                className="text-[6vw] font-serif leading-[1.2] opacity-25 transition-opacity duration-300 text-primary whitespace-nowrap"
+                className="text-[6vw] font-serif leading-[1.2] opacity-25 transition-opacity duration-300 text-white whitespace-nowrap drop-shadow-lg"
                 style={{ opacity: i === 0 ? 1 : 0.25 }}
                >
                  {item.name}

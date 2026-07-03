@@ -7,12 +7,22 @@ export const TOURS: Tour[] = [
     location: 'Kandy & Nuwara Eliya',
     price: 1200,
     days: 7,
+    nights: 6,
     category: 'Culture',
     rating: 4.9,
     reviews: 124,
     image: 'https://picsum.photos/800/600?random=1',
     description: 'Experience the ancient kingdoms and misty tea plantations in a private luxury tour designed for the discerning traveler.',
     highlights: ['Private Tea Tasting', 'Temple of the Tooth Relic', 'Scenic Train Ride', 'Luxury Boutique Stays'],
+    inclusions: ['Accommodation', 'Transport', 'Breakfast', 'Guide'],
+    includedActivities: ['Tea Tasting', 'Temple Visit'],
+    destinations: [
+        { name: 'Kandy', description: 'Hill capital', image: 'https://picsum.photos/800/600?random=101' },
+        { name: 'Nuwara Eliya', description: 'Little England', image: 'https://picsum.photos/800/600?random=102' }
+    ],
+    activities: [
+        { name: 'Train Ride', image: 'https://picsum.photos/800/600?random=201' }
+    ],
     itinerary: [
       { day: 1, title: 'Arrival in Colombo', description: 'VIP transfer to your boutique hotel. Evening city walk.' },
       { day: 2, title: 'Journey to Kandy', description: 'Visit the Elephant Orphanage en route to the hill capital.' },
@@ -29,12 +39,21 @@ export const TOURS: Tour[] = [
     location: 'Yala National Park',
     price: 850,
     days: 4,
+    nights: 3,
     category: 'Nature',
     rating: 4.8,
     reviews: 89,
     image: 'https://picsum.photos/800/600?random=2',
     description: 'Track leopards and elephants in their natural habitat while staying in eco-luxury glamping tents.',
     highlights: ['4x4 Jeep Safari', 'Luxury Glamping', 'Bonfire Dinner', 'Bird Watching'],
+    inclusions: ['Camping', 'Jeep', 'All meals'],
+    includedActivities: ['Morning Safari', 'Evening Safari'],
+    destinations: [
+        { name: 'Yala', description: 'National Park', image: 'https://picsum.photos/800/600?random=103' }
+    ],
+    activities: [
+        { name: 'Safari', image: 'https://picsum.photos/800/600?random=202' }
+    ],
     itinerary: [
       { day: 1, title: 'Arrival at Camp', description: 'Check into your luxury tent bordering the national park.' },
       { day: 2, title: 'Morning Safari', description: 'Early morning game drive to spot the elusive leopard.' },
@@ -48,12 +67,22 @@ export const TOURS: Tour[] = [
     location: 'Galle & Mirissa',
     price: 1500,
     days: 6,
+    nights: 5,
     category: 'Luxury',
     rating: 5.0,
     reviews: 56,
     image: 'https://picsum.photos/800/600?random=3',
     description: 'Unwind on pristine beaches and explore the colonial charm of Galle Fort.',
     highlights: ['Whale Watching', 'Private Villa', 'Galle Fort Tour', 'Seafood Gastronomy'],
+    inclusions: ['Villa', 'Transport', 'Breakfast'],
+    includedActivities: ['Whale Watching', 'Fort Tour'],
+    destinations: [
+        { name: 'Galle', description: 'Historic Fort', image: 'https://picsum.photos/800/600?random=104' },
+        { name: 'Mirissa', description: 'Beautiful Beach', image: 'https://picsum.photos/800/600?random=105' }
+    ],
+    activities: [
+        { name: 'Whale Watching', image: 'https://picsum.photos/800/600?random=203' }
+    ],
     itinerary: [
       { day: 1, title: 'Welcome to Galle', description: 'Check into your private beachfront villa.' },
       { day: 2, title: 'Fort History', description: 'Guided walking tour of the UNESCO World Heritage Galle Fort.' },
@@ -69,12 +98,22 @@ export const TOURS: Tour[] = [
     location: 'Sigiriya & Dambulla',
     price: 600,
     days: 3,
+    nights: 2,
     category: 'Adventure',
     rating: 4.7,
     reviews: 210,
     image: 'https://picsum.photos/800/600?random=4',
     description: 'Climb the Lion Rock fortress and explore ancient cave temples.',
     highlights: ['Sigiriya Rock Climb', 'Dambulla Cave Temple', 'Village Safari', 'Hot Air Ballooning'],
+    inclusions: ['Hotel', 'Transport', 'Tickets'],
+    includedActivities: ['Rock Climb', 'Cave Temple'],
+    destinations: [
+        { name: 'Sigiriya', description: 'Rock Fortress', image: 'https://picsum.photos/800/600?random=106' },
+        { name: 'Dambulla', description: 'Cave Temple', image: 'https://picsum.photos/800/600?random=107' }
+    ],
+    activities: [
+        { name: 'Climbing', image: 'https://picsum.photos/800/600?random=204' }
+    ],
     itinerary: [
       { day: 1, title: 'Arrival', description: 'Transfer to Sigiriya and evening village walk.' },
       { day: 2, title: 'The Climb', description: 'Early morning climb of Sigiriya Rock Fortress.' },
@@ -87,12 +126,21 @@ export const TOURS: Tour[] = [
     location: 'Ella',
     price: 750,
     days: 4,
+    nights: 3,
     category: 'Nature',
     rating: 4.8,
     reviews: 145,
     image: 'https://picsum.photos/800/600?random=5',
     description: 'Hiking, waterfalls, and breathtaking views in the hill country.',
     highlights: ['Nine Arch Bridge', 'Little Adams Peak', 'Ravana Falls', 'Cooking Class'],
+    inclusions: ['Hotel', 'Transport', 'Breakfast'],
+    includedActivities: ['Hiking', 'Cooking Class'],
+    destinations: [
+        { name: 'Ella', description: 'Scenic Hills', image: 'https://picsum.photos/800/600?random=108' }
+    ],
+    activities: [
+        { name: 'Hiking', image: 'https://picsum.photos/800/600?random=205' }
+    ],
     itinerary: [
       { day: 1, title: 'Arrival in Ella', description: 'Check in to a hotel with a view of the Gap.' },
       { day: 2, title: 'Nine Arch Bridge', description: 'Morning hike to the famous bridge.' },
@@ -106,12 +154,22 @@ export const TOURS: Tour[] = [
     location: 'Anuradhapura & Polonnaruwa',
     price: 1100,
     days: 5,
+    nights: 4,
     category: 'Culture',
     rating: 4.6,
     reviews: 78,
     image: 'https://picsum.photos/800/600?random=6',
     description: 'A deep dive into the ancient history and ruins of Sri Lanka.',
     highlights: ['Ancient Ruins', 'Bike Tours', 'Lake Sunset', 'Authentic Cuisine'],
+    inclusions: ['Hotel', 'Transport', 'Tickets', 'Breakfast'],
+    includedActivities: ['Ruins Tour', 'Bike Ride'],
+    destinations: [
+        { name: 'Anuradhapura', description: 'Ancient City', image: 'https://picsum.photos/800/600?random=109' },
+        { name: 'Polonnaruwa', description: 'Medieval City', image: 'https://picsum.photos/800/600?random=110' }
+    ],
+    activities: [
+        { name: 'Bike Tour', image: 'https://picsum.photos/800/600?random=206' }
+    ],
     itinerary: [
       { day: 1, title: 'Anuradhapura', description: 'Explore the first capital of ancient Sri Lanka.' },
       { day: 2, title: 'Mihintale', description: 'Visit the cradle of Buddhism in Sri Lanka.' },

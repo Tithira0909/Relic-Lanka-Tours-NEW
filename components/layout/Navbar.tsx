@@ -3,11 +3,14 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Globe, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/Button';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { language, setLanguage, isTranslating } = useLanguage();
+  const [langOpen, setLangOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +25,14 @@ export const Navbar: React.FC = () => {
     setIsOpen(false);
   }, [location]);
 
+  useEffect(() => {
+    const handleClickOutside = () => setLangOpen(false);
+    if (langOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [langOpen]);
+
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Tours', path: '/tours' },
@@ -33,13 +44,18 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-white/80 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'
+        className={`fixed top-4 left-4 right-4 z-50 transition-all duration-300 rounded-2xl border border-white/20 shadow-lg ${
+          isScrolled
+            ? 'bg-white/90 backdrop-blur-md py-3'
+            : 'bg-white/90 backdrop-blur-md py-4'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-          <Link to="/" className="text-2xl font-serif font-semibold tracking-tighter text-primary">
-            CEYLON<span className="text-ceylon-700">.</span>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3 group">
+             <img src="/assets/logo.png" alt="Relic Lanka Tours" className="h-10 w-auto object-contain" />
+             <span className="text-xl md:text-2xl font-serif font-semibold tracking-tighter text-primary group-hover:text-ceylon-700 transition-colors">
+               Relic Lanka Tours
+             </span>
           </Link>
 
           {/* Desktop Nav */}
@@ -61,12 +77,47 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-             <Button variant="outline" size="sm" className="hidden lg:flex border-gray-200">
-               <Globe className="w-4 h-4 mr-2" /> EN
-             </Button>
-             <Link to="/contact">
-                <Button size="sm">Plan My Trip</Button>
-             </Link>
+            <div className="relative hidden lg:block">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center border-gray-200"
+                onClick={(e) =>{
+                  e.stopPropagation();
+                  setLangOpen(!langOpen);
+                }}
+              >
+                <Globe className={`w-4 h-4 mr-2 ${isTranslating ? "animate-spin" : ""}`} />
+                {isTranslating ? "Translating..." : language}
+              </Button>
+
+              {langOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg">
+                  {[
+                    { code: "EN", name: "English" },
+                    { code: "JA", name: "Japanese" },
+                    { code: "FR", name: "French" },
+                    { code: "ZH-HANS", name: "Chinese" },
+                    { code: "AR", name: "Arabic" }
+                  ].map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLanguage(lang.code);
+                        setLangOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                    >
+                      {lang.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Link to="/contact">
+              <Button size="sm">Plan My Trip</Button>
+            </Link>
           </div>
 
           {/* Mobile Toggle */}

@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { useData } from '../context/DataContext';
 import { Section } from '../components/ui/Section';
 import { TourCard } from '../components/features/TourCard';
 import { Button } from '../components/ui/Button';
-import { TOURS } from '../data/mockData';
-import { Tour } from '../types';
 
 export const Tours: React.FC = () => {
+  const { tours } = useData();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const categories = ['All', 'Culture', 'Nature', 'Luxury', 'Adventure'];
 
-  const filteredTours = TOURS.filter(tour => {
+  const filteredTours = tours.filter(tour => {
     const matchesSearch = tour.title.toLowerCase().includes(searchTerm.toLowerCase()) || tour.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory && selectedCategory !== 'All' ? tour.category === selectedCategory : true;
     return matchesSearch && matchesCategory;

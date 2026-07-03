@@ -7,6 +7,10 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const deepl = require('deepl-node');
+const formData = require('form-data');
+const Mailgun = require('mailgun.js');
+const speakeasy = require('speakeasy');
+const qrcode = require('qrcode');
 
 /**
  * DATABASE CONFIGURATION
@@ -24,7 +28,14 @@ const deepl = require('deepl-node');
 const dotenv = require('dotenv');
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
-const translator = new deepl.Translator(process.env.DEEPL_API_KEY);
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({
+    username: 'api',
+    key: process.env.MAILGUN_API_KEY || 'fake-key'
+});
+const DEEPL_KEY = process.env.DEEPL_API_KEY || process.env.DEEPL_AUTH_KEY || '';
+const translator = DEEPL_KEY ? new deepl.Translator(DEEPL_KEY) : null;
+if (!translator) console.warn('[WARNING] DeepL API key not set — translation will be disabled. Set DEEPL_API_KEY in .env to enable it.');
 
 const db = process.env.DB_TYPE === 'mysql' ? require('./db_mysql.cjs') : require('./db.cjs');
 
@@ -79,7 +90,7 @@ const authenticateToken = (req, res, next) => {
 
 // Login Route
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, token: provided2FaToken } = req.body;
 
   try {
       const users = await db.query("SELECT * FROM users WHERE username = ?", [username]);
@@ -89,6 +100,20 @@ app.post('/api/login', async (req, res) => {
 
       const validPassword = bcrypt.compareSync(password, user.password);
       if (!validPassword) return res.status(400).send('Invalid password');
+
+      if (user.two_factor_secret) {
+          if (!provided2FaToken) {
+              return res.status(200).json({ requires2FA: true });
+          }
+          const verified = speakeasy.totp.verify({
+              secret: user.two_factor_secret,
+              encoding: 'base32',
+              token: provided2FaToken
+          });
+          if (!verified) {
+             return res.status(400).send('Invalid 2FA token');
+          }
+      }
 
       const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
       res.json({ token });
@@ -112,6 +137,74 @@ app.post('/api/upload', authenticateToken, upload.single('image'), (req, res) =>
 // Let's serve static files at /api/uploads to match the return URL logic easily
 // But wait, express static usually serves from root.
 // If I use `app.use('/api/uploads', express.static(...))` it works.
+// -- Contact Form Mailgun --
+app.post('/api/contact', async (req, res) => {
+    const { firstName, lastName, email, message } = req.body;
+    
+    if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
+        console.warn('Mailgun is not configured. Simulating success.');
+        return res.status(200).json({ success: true, message: 'Simulated email send.' });
+    }
+
+    try {
+        const msg = await mg.messages.create(process.env.MAILGUN_DOMAIN, {
+            from: `Website Contact <mailgun@${process.env.MAILGUN_DOMAIN}>`,
+            to: [process.env.CONTACT_EMAIL || 'admin@ceylon.travel'],
+            subject: `New Contact Request from ${firstName} ${lastName}`,
+            text: `You have received a new contact request.\n\nName: ${firstName} ${lastName}\nEmail: ${email}\nMessage:\n${message}`,
+            html: `<h3>New Contact Request</h3>
+                   <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+                   <p><strong>Email:</strong> ${email}</p>
+                   <p><strong>Message:</strong><br/>${message.replace(/\n/g, '<br/>')}</p>`
+        });
+        res.status(200).json({ success: true, id: msg.id });
+    } catch (err) {
+        console.error('Mailgun Error:', err);
+        res.status(500).json({ error: 'Failed to send email' });
+    }
+});
+
+// -- 2FA setup & Verify endpoints --
+app.get('/api/admin/2fa/setup', authenticateToken, async (req, res) => {
+    try {
+        const secret = speakeasy.generateSecret({ name: 'Relic Lanka Tours Admin' });
+        qrcode.toDataURL(secret.otpauth_url, (err, data_url) => {
+            if (err) throw err;
+            res.json({ secret: secret.base32, qrCode: data_url });
+        });
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/admin/2fa/verify', authenticateToken, async (req, res) => {
+    const { token: providedToken, secret } = req.body;
+    try {
+        const verified = speakeasy.totp.verify({
+            secret: secret,
+            encoding: 'base32',
+            token: providedToken
+        });
+        if (verified) {
+            await db.query("UPDATE users SET two_factor_secret = ? WHERE username = ?", [secret, req.user.username]);
+            res.json({ success: true });
+        } else {
+            res.status(400).json({ error: 'Invalid token' });
+        }
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/admin/2fa/disable', authenticateToken, async (req, res) => {
+    try {
+        await db.query("UPDATE users SET two_factor_secret = NULL WHERE username = ?", [req.user.username]);
+        res.json({ success: true });
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
@@ -390,6 +483,9 @@ app.delete('/api/admin/reviews/:id', authenticateToken, async (req, res) => {
 // --- TRANSLATE TEXT ---
 app.post("/api/translate", async (req, res) => {
   try {
+    if (!translator) {
+      return res.status(503).json({ error: "Translation service not configured. Set DEEPL_API_KEY in .env." });
+    }
     const { texts, targetLang } = req.body;
 
     if (!texts || !Array.isArray(texts) || texts.length === 0) {

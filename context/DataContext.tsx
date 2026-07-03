@@ -20,6 +20,7 @@ interface DataContextType extends AppData {
   updateHeroImages: (images: string[]) => Promise<void>;
   updateWhyChooseUsImages: (images: string[]) => Promise<void>;
   updateAdventureBanner: (url: string) => Promise<void>;
+  updateSettingsData: (settings: any) => Promise<void>;
   loading: boolean;
 }
 
@@ -73,7 +74,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
               },
               heroImages: settings.hero_images ? JSON.parse(settings.hero_images) : [],
               whyChooseUsImages: settings.why_choose_us_images ? JSON.parse(settings.why_choose_us_images) : [],
-              adventureBanner: settings.adventure_banner || ''
+              adventureBanner: settings.adventure_banner || '',
+              aboutBanner: settings.about_banner || '',
+              aboutImage1: settings.about_image_1 || '',
+              aboutImage2: settings.about_image_2 || '',
+              contactAddress: settings.contact_address || '',
+              contactPhone: settings.contact_phone || '',
+              contactEmail1: settings.contact_email_1 || '',
+              contactEmail2: settings.contact_email_2 || '',
+              contactMapIframe: settings.contact_map_iframe || ''
           }));
       } catch (err) {
           console.error(err);
@@ -193,6 +202,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateSettingsData = async (settingsPayload: any) => {
+      try {
+          const res = await fetch(`${API_BASE_URL}/api/settings`, {
+              method: 'POST',
+              headers: authHeaders,
+              body: JSON.stringify(settingsPayload)
+          });
+          if (res.ok) {
+              fetchSettings();
+          }
+      } catch (e) {
+          console.error(e);
+      }
+  };
+
   const addToGallery = async (image: GalleryImage) => {
      try {
         const res = await fetch(`${API_BASE_URL}/api/gallery`, {
@@ -235,6 +259,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateHeroImages,
         updateWhyChooseUsImages,
         updateAdventureBanner,
+        updateSettingsData,
         loading
       }}
     >

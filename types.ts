@@ -87,4 +87,12 @@ export interface AppData {
   heroImages: string[];
   whyChooseUsImages: string[];
   adventureBanner?: string;
+  aboutBanner?: string;
+  aboutImage1?: string;
+  aboutImage2?: string;
+  contactAddress?: string;
+  contactPhone?: string;
+  contactEmail1?: string;
+  contactEmail2?: string;
+  contactMapIframe?: string;
 }

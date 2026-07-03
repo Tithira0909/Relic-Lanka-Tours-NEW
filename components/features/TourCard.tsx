@@ -35,7 +35,7 @@ export const TourCard: React.FC<TourCardProps> = ({ tour }) => {
           </div>
           <div className="flex items-center">
             <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-            {tour.rating}
+            {Math.round(tour.rating)}
           </div>
         </div>
         

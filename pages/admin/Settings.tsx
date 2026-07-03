@@ -1,24 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
+import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../utils/config';
 import { ImageUpload } from '../../components/common/ImageUpload';
 import { Trash2 } from 'lucide-react';
 
 export const Settings: React.FC = () => {
   const {
     socialMedia, heroImages, whyChooseUsImages, adventureBanner,
-    updateSocialMedia, updateHeroImages, updateWhyChooseUsImages, updateAdventureBanner
+    aboutBanner, aboutImage1, aboutImage2,
+    contactAddress, contactPhone, contactEmail1, contactEmail2, contactMapIframe,
+    updateSocialMedia, updateHeroImages, updateWhyChooseUsImages, updateAdventureBanner,
+    updateSettingsData
   } = useData();
+  const { token } = useAuth();
+
   const [formData, setFormData] = useState(socialMedia);
   const [localHeroImages, setLocalHeroImages] = useState<string[]>([]);
   const [localWhyChooseUsImages, setLocalWhyChooseUsImages] = useState<string[]>([]);
   const [localAdventureBanner, setLocalAdventureBanner] = useState<string>('');
+  
+  const [aboutSettings, setAboutSettings] = useState({
+      about_banner: aboutBanner || '',
+      about_image_1: aboutImage1 || '',
+      about_image_2: aboutImage2 || ''
+  });
+
+  const [contactSettings, setContactSettings] = useState({
+      contact_address: contactAddress || '',
+      contact_phone: contactPhone || '',
+      contact_email_1: contactEmail1 || '',
+      contact_email_2: contactEmail2 || '',
+      contact_map_iframe: contactMapIframe || ''
+  });
+
+  const [qrCode, setQrCode] = useState('');
+  const [twoFaSecret, setTwoFaSecret] = useState('');
+  const [twoFaToken, setTwoFaToken] = useState('');
+  const [twoFaMessage, setTwoFaMessage] = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
       setLocalHeroImages(heroImages);
       setLocalWhyChooseUsImages(whyChooseUsImages);
       setLocalAdventureBanner(adventureBanner || '');
-  }, [heroImages, whyChooseUsImages, adventureBanner]);
+      setAboutSettings({
+          about_banner: aboutBanner || '',
+          about_image_1: aboutImage1 || '',
+          about_image_2: aboutImage2 || ''
+      });
+      setContactSettings({
+          contact_address: contactAddress || '',
+          contact_phone: contactPhone || '',
+          contact_email_1: contactEmail1 || '',
+          contact_email_2: contactEmail2 || '',
+          contact_map_iframe: contactMapIframe || ''
+      });
+  }, [heroImages, whyChooseUsImages, adventureBanner, aboutBanner, aboutImage1, aboutImage2, contactAddress, contactPhone, contactEmail1, contactEmail2, contactMapIframe]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,14 +67,68 @@ export const Settings: React.FC = () => {
       setFormData(prev => ({ ...prev, [name]: url }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateSocialMedia(formData);
-    updateHeroImages(localHeroImages);
-    updateWhyChooseUsImages(localWhyChooseUsImages);
-    updateAdventureBanner(localAdventureBanner);
-    setMessage('Settings updated successfully!');
-    setTimeout(() => setMessage(''), 3000);
+  const handleAboutChange = (name: string, url: string) => {
+      setAboutSettings(prev => ({ ...prev, [name]: url }));
+  };
+
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setContactSettings(prev => ({ ...prev, [name]: value }));
+  };
+
+  const saveAboutSettings = () => {
+      updateSettingsData(aboutSettings);
+      setMessage('About Us Settings saved!');
+      setTimeout(() => setMessage(''), 3000);
+  };
+
+  const saveContactSettings = () => {
+      updateSettingsData(contactSettings);
+      setMessage('Contact Settings saved!');
+      setTimeout(() => setMessage(''), 3000);
+  };
+
+  const setup2FA = async () => {
+      try {
+          const res = await fetch(`${API_BASE_URL}/api/admin/2fa/setup`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data.qrCode) {
+              setQrCode(data.qrCode);
+              setTwoFaSecret(data.secret);
+              setTwoFaMessage('');
+          }
+      } catch(e) { console.error(e); }
+  };
+
+  const verify2FA = async () => {
+      try {
+          const res = await fetch(`${API_BASE_URL}/api/admin/2fa/verify`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: twoFaToken, secret: twoFaSecret })
+          });
+          if (res.ok) {
+              setTwoFaMessage('2FA Enabled Successfully!');
+              setQrCode('');
+          } else {
+              setTwoFaMessage('Invalid token. Try again.');
+          }
+      } catch(e) { console.error(e); }
+  };
+
+  const disable2FA = async () => {
+      try {
+          const res = await fetch(`${API_BASE_URL}/api/admin/2fa/disable`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+              setTwoFaMessage('2FA Disabled Successfully!');
+              setQrCode('');
+          }
+      } catch(e) { console.error(e); }
   };
 
   const addHeroImage = (url: string) => {
@@ -62,8 +154,95 @@ export const Settings: React.FC = () => {
   return (
     <div>
       <h1 className="text-3xl font-serif font-bold text-gray-800 mb-8">Settings</h1>
+      
+      {message && <div className="mb-4 p-4 bg-green-50 text-green-700 rounded-lg">{message}</div>}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      {/* Security (2FA) */}
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 col-span-1 lg:col-span-2">
+        <h2 className="text-xl font-bold mb-6">Security Settings</h2>
+        <div className="space-y-4">
+            <p className="text-gray-600">Protect your admin account with Two-Factor Authentication (Google Authenticator).</p>
+            <div className="flex gap-4">
+                <button type="button" onClick={setup2FA} className="px-4 py-2 bg-ceylon-700 text-white rounded-lg hover:bg-ceylon-800 transition-colors">
+                    Setup / Reset 2FA
+                </button>
+                <button type="button" onClick={disable2FA} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    Disable 2FA
+                </button>
+            </div>
+            
+            {qrCode && (
+                <div className="mt-6 border p-6 rounded-lg inline-block text-center">
+                    <p className="font-bold mb-2">1. Scan this QR Code with Google Authenticator</p>
+                    <img src={qrCode} alt="2FA QR Code" className="mx-auto mb-4" />
+                    <p className="font-bold mb-2">2. Enter the 6-digit token to verify</p>
+                    <div className="flex justify-center gap-2">
+                        <input type="text" value={twoFaToken} onChange={(e) => setTwoFaToken(e.target.value)} className="border rounded px-4 py-2 w-32 text-center text-lg" placeholder="123456" />
+                        <button type="button" onClick={verify2FA} className="px-4 py-2 bg-ceylon-700 text-white rounded-lg">Verify & Save</button>
+                    </div>
+                </div>
+            )}
+            {twoFaMessage && <p className="text-green-600 font-bold mt-2">{twoFaMessage}</p>}
+        </div>
+      </div>
+
+      {/* About Us Page Settings */}
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+          <h2 className="text-xl font-bold mb-6">About Us Page</h2>
+          <div className="space-y-6">
+              <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Top Banner Image (1920x600 recommended)</label>
+                  <ImageUpload value={aboutSettings.about_banner} onChange={(url) => handleAboutChange('about_banner', url)} placeholder="Upload Top Banner..." />
+              </div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Side Image 1 (400x500 recommended)</label>
+                  <ImageUpload value={aboutSettings.about_image_1} onChange={(url) => handleAboutChange('about_image_1', url)} placeholder="Upload Image 1..." />
+              </div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Side Image 2 (400x500 recommended)</label>
+                  <ImageUpload value={aboutSettings.about_image_2} onChange={(url) => handleAboutChange('about_image_2', url)} placeholder="Upload Image 2..." />
+              </div>
+              <div className="pt-4 flex justify-end">
+                  <button type="button" onClick={saveAboutSettings} className="px-6 py-2 bg-ceylon-700 text-white rounded-lg hover:bg-ceylon-800 transition-colors">
+                      Save About Us
+                  </button>
+              </div>
+          </div>
+      </div>
+
+      {/* Contact Page Settings */}
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+          <h2 className="text-xl font-bold mb-6">Contact Page</h2>
+          <div className="space-y-6">
+              <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Address (supports HTML e.g. &lt;br/&gt;)</label>
+                  <textarea name="contact_address" rows={2} value={contactSettings.contact_address} onChange={handleContactChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" placeholder="123 Galle Road..."></textarea>
+              </div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Numbers (supports HTML)</label>
+                  <textarea name="contact_phone" rows={2} value={contactSettings.contact_phone} onChange={handleContactChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" placeholder="+94 11..."></textarea>
+              </div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Primary Email</label>
+                  <input type="text" name="contact_email_1" value={contactSettings.contact_email_1} onChange={handleContactChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" placeholder="hello@ceylon.travel" />
+              </div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Secondary Email</label>
+                  <input type="text" name="contact_email_2" value={contactSettings.contact_email_2} onChange={handleContactChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" placeholder="bookings@ceylon.travel" />
+              </div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Google Maps Embed iframe (Paste entire iframe HTML)</label>
+                  <textarea name="contact_map_iframe" rows={3} value={contactSettings.contact_map_iframe} onChange={handleContactChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ceylon-500 outline-none" placeholder='<iframe src="..."></iframe>'></textarea>
+              </div>
+               <div className="pt-4 flex justify-end">
+                  <button type="button" onClick={saveContactSettings} className="px-6 py-2 bg-ceylon-700 text-white rounded-lg hover:bg-ceylon-800 transition-colors">
+                      Save Contact Info
+                  </button>
+              </div>
+          </div>
+      </div>
 
       {/* Social Media */}
       <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
@@ -146,7 +325,7 @@ export const Settings: React.FC = () => {
               </div>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-4 flex justify-end">
             <button
               type="button"
               onClick={() => { updateSocialMedia(formData); setMessage('Social Media saved!'); setTimeout(() => setMessage(''), 3000); }}
@@ -154,7 +333,6 @@ export const Settings: React.FC = () => {
             >
               Save Social Media
             </button>
-            {message && <span className="ml-4 text-green-600">{message}</span>}
           </div>
         </div>
       </div>

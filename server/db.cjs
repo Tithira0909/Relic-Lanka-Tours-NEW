@@ -14,6 +14,10 @@ const init = () => {
             password TEXT
         )`);
 
+        db.run(`ALTER TABLE users ADD COLUMN two_factor_secret TEXT`, (err) => {
+            // Ignore if column already exists
+        });
+
         // Tours
         db.run(`CREATE TABLE IF NOT EXISTS tours (
             id TEXT PRIMARY KEY,

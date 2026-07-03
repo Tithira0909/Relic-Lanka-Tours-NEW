@@ -63,6 +63,12 @@ const initDB = async () => {
             )
         `);
 
+        try {
+            await connection.query('ALTER TABLE users ADD COLUMN two_factor_secret VARCHAR(255)');
+        } catch (e) {
+            // Ignore error if column already exists
+        }
+
         // Tours
         await connection.query(`
             CREATE TABLE IF NOT EXISTS tours (

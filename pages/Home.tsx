@@ -56,17 +56,23 @@ export const Home: React.FC = () => {
       {/* Hero Section */}
       <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 z-0">
-          <AnimatePresence mode="wait">
+        <div className="absolute inset-0 z-0 bg-black">
+          {/* Static fallback image to ensure there's ALWAYS something behind from the very start */}
+          <img
+            src={displayImages[0]}
+            alt="Fallback Background"
+            className="w-full h-full object-cover absolute inset-0 opacity-50"
+          />
+          <AnimatePresence initial={false}>
               <motion.img
                 key={currentHeroIndex}
                 src={displayImages[currentHeroIndex]}
                 alt="Sri Lanka Coast"
-                className="w-full h-full object-cover absolute inset-0"
-                initial={{ x: "100%", opacity: 0 }}
-                animate={{ x: "0%", opacity: 1 }}
-                exit={{ x: "-100%", opacity: 0 }}
-                transition={{ duration: 1, ease: "easeInOut" }}
+                className="w-full h-full object-cover absolute inset-0 origin-center"
+                initial={{ opacity: 0, scale: 1.05, x: 50 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
               />
           </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60 z-10" />
@@ -147,14 +153,20 @@ export const Home: React.FC = () => {
                transition={{ duration: 0.8 }}
              >
                 <div className="relative h-[600px] w-full">
-                   <div className="absolute inset-0 rounded-3xl shadow-2xl overflow-hidden">
-                      <AnimatePresence mode="wait">
+                   <div className="absolute inset-0 rounded-3xl shadow-2xl overflow-hidden bg-ceylon-900">
+                      {/* Static fallback to ensure there's always an image from the start */}
+                      <img
+                          src={displayWhyImages[0]}
+                          alt="Fallback Experience"
+                          className="w-full h-full object-cover absolute inset-0 opacity-50"
+                      />
+                      <AnimatePresence initial={false}>
                           <motion.img
                             key={currentWhyIndex}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            transition={{ duration: 1 }}
+                            transition={{ duration: 1.5, ease: "easeInOut" }}
                             src={displayWhyImages[currentWhyIndex]}
                             alt="Experience Sri Lanka"
                             className="w-full h-full object-cover absolute inset-0"
@@ -188,10 +200,10 @@ export const Home: React.FC = () => {
                <h2 className="text-4xl md:text-6xl font-serif font-medium text-primary mb-8">
                  A Land Like <br/> No Other
                </h2>
-               <p className="text-gray-500 text-lg leading-relaxed mb-6">
+               <p className="text-gray-500 text-lg leading-relaxed mb-6 text-justify">
                  From the golden sandy beaches of the south to the misty tea plantations of the central highlands, Sri Lanka offers a diverse tapestry of experiences within a compact island.
                </p>
-               <p className="text-gray-500 text-lg leading-relaxed mb-10">
+               <p className="text-gray-500 text-lg leading-relaxed mb-10 text-justify">
                  Our local experts craft personalized itineraries that go beyond the guidebook. Taste authentic spices, meet local artisans, and walk through history in the Cultural Triangle.
                </p>
                
@@ -217,6 +229,8 @@ export const Home: React.FC = () => {
 
       {/* Testimonials / Traveler Stories */}
       <TravelerStories />
+
+
 
       {/* CTA */}
       <section className="py-20 px-4">

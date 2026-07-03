@@ -10,11 +10,12 @@ import { FaHandPointUp } from "react-icons/fa";
 
 export const TourDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { tours } = useData();
+  const { tours, socialMedia } = useData();
   const [selectedPackage, setSelectedPackage] = useState<'luxury' | 'semi_luxury'>('luxury');
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [includePhotography, setIncludePhotography] = useState(false);
+  const [travelDate, setTravelDate] = useState('');
   
   // Find tour
   const tour = tours.find(t => t.id === id);
@@ -50,11 +51,39 @@ export const TourDetail: React.FC = () => {
 
   const currentHotels = selectedPackage === 'luxury' ? tour.hotels_luxury : selectedPackage === 'semi_luxury' ? tour.hotels_semi_luxury : [];
 
+  const handleBookNow = () => {
+      const number = socialMedia?.whatsapp || '94771234567'; 
+      
+      const message = `Hello, I would like to request a tour booking!
+*Tour:* ${tour?.title}
+*Package:* ${selectedPackage === 'luxury' ? 'Luxury' : 'Semi-Luxury'}
+*Travel Date:* ${travelDate || 'Not selected'}
+*Guests:* ${adults} Adults, ${children} Children
+*Photography Included:* ${includePhotography ? 'Yes' : 'No'}
+*Estimated Total:* USD ${getPrice().toLocaleString()}
+
+Please provide more details on how to proceed.`;
+
+      const encodedMessage = encodeURIComponent(message);
+      let cleanNumber = number.replace(/[^0-9]/g, '');
+      if (cleanNumber.startsWith('0')) {
+          cleanNumber = '94' + cleanNumber.substring(1);
+      }
+      
+      const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodedMessage}`;
+      window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <div className="bg-white">
       {/* Hero */}
-      <div className="relative h-[60vh] min-h-[500px]">
-        <img src={tour.image} alt={tour.title} className="w-full h-full object-cover" />
+      <div className="relative h-[60vh] min-h-[500px] bg-ceylon-900 overflow-hidden">
+        <motion.img 
+            initial={{ scale: 1.1, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            src={tour.image} alt={tour.title} className="w-full h-full object-cover" 
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
         
         <div className="absolute top-24 left-4 md:left-8">
@@ -100,7 +129,23 @@ export const TourDetail: React.FC = () => {
                   <h3 className="text-2xl font-serif font-bold mb-4 text-primary">Tour Video</h3>
                   <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-lg border border-gray-100">
                     <iframe
-                      src={tour.video_url}
+                      src={(() => {
+                        let url = tour.video_url;
+                        if (!url) return '';
+                        try {
+                           if (url.includes('youtu.be/')) {
+                               const videoId = url.split('youtu.be/')[1].split('?')[0];
+                               return `https://www.youtube.com/embed/${videoId}`;
+                           } else if (url.includes('youtube.com/watch')) {
+                               const urlObj = new URL(url);
+                               const videoId = urlObj.searchParams.get('v');
+                               if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+                           }
+                        } catch (e) {
+                           // if URL parsing fails, simply return the original url
+                        }
+                        return url;
+                      })()}
                       className="w-full h-full"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
@@ -240,16 +285,16 @@ export const TourDetail: React.FC = () => {
               <div className="mb-6">
                 <span className="text-gray-500 text-sm uppercase tracking-wider block mb-1">Starting at</span>
                 <div className="flex items-baseline mb-1">
-                  <span className="text-4xl font-serif font-bold text-primary">LKR {getPrice().toLocaleString()}</span>
+                  <span className="text-4xl font-serif font-bold text-primary">USD {getPrice().toLocaleString()}</span>
                 </div>
               </div>
 
               <div className="flex items-center mb-6 mt-4 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
                 <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
-                  <img src="https://ui-avatars.com/api/?name=Devmini+Gunaratne&background=random" alt="Devmini Gunaratne" className="w-full h-full object-cover" />
+                  <img src="https://ui-avatars.com/api/?name=Supun+Karunarathne&background=random" alt="Supun Karunarathne" className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <h5 className="font-bold text-sm text-primary">Hello! I'm Devmini Gunaratne</h5>
+                  <h5 className="font-bold text-sm text-primary">Hello! I'm Supun Karunarathne</h5>
                   <p className="text-xs text-gray-500 leading-tight">Your dedicated Destination Expert. Let's plan your dream getaway!</p>
                 </div>
               </div>
@@ -284,28 +329,39 @@ export const TourDetail: React.FC = () => {
                 </div>
 
                 {/* Photography Add-on */}
-                {tour.price_photography ? (
-                  <div className="mt-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Add-ons</label>
-                    <div
-                      onClick={() => setIncludePhotography(prev => !prev)}
-                      className={`p-3 border rounded-lg cursor-pointer transition-all ${includePhotography ? 'border-ceylon-600 bg-ceylon-50' : 'border-gray-200 hover:border-ceylon-300'}`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium text-gray-700">Photography Package</span>
+                <div className="mt-4 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Optional Add-ons</label>
+                  <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${includePhotography ? 'border-ceylon-600 bg-ceylon-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input 
+                      type="checkbox" 
+                      className="w-5 h-5 text-ceylon-600 border-gray-300 rounded focus:ring-ceylon-500 cursor-pointer" 
+                      checked={includePhotography}
+                      onChange={(e) => setIncludePhotography(e.target.checked)}
+                    />
+                    <div className="flex-1 flex justify-between items-center">
+                      <span className="font-medium text-gray-700">Include Photography Package</span>
+                      {tour.price_photography ? (
                         <span className="text-sm font-bold text-ceylon-700">+${tour.price_photography} / person</span>
-                      </div>
+                      ) : (
+                        <span className="text-xs text-gray-500 italic">Request quote</span>
+                      )}
                     </div>
-                  </div>
-                ) : null}
+                  </label>
+                </div>
               </div>
 
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleBookNow(); }}>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Travel Date</label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="date" className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-ceylon-500 outline-none" />
+                    <input 
+                      type="date" 
+                      value={travelDate}
+                      onChange={(e) => setTravelDate(e.target.value)}
+                      required
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-ceylon-500 outline-none" 
+                    />
                   </div>
                 </div>
 
@@ -333,7 +389,7 @@ export const TourDetail: React.FC = () => {
                 </div>
 
                 <div className="pt-2">
-                  <Button size="lg" className="w-full bg-green-500 hover:bg-green-600 text-white border-0 shadow-md">Book Now</Button>
+                  <Button type="submit" size="lg" className="w-full bg-green-500 hover:bg-green-600 text-white border-0 shadow-md">Book Now via WhatsApp</Button>
                   <div className="text-center mt-3">
                     <a href="#" className="text-xs text-gray-500 italic hover:text-gray-700 underline">Have a coupon?</a>
                   </div>

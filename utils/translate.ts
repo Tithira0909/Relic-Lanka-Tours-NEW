@@ -4,7 +4,7 @@ export const translateTexts = async (texts: string[], targetLang: string): Promi
   if (targetLang === "EN") return texts;
 
   try {
-    const response = await fetch("http://localhost:3001/api/translate", {
+    const response = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ texts, targetLang })

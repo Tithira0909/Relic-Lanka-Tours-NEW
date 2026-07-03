@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { DataProvider } from './context/DataContext';
@@ -7,6 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { SocialBubbles } from './components/common/SocialBubbles';
+import { LoadingScreen } from './components/ui/LoadingScreen';
 
 import { Home } from './pages/Home';
 import { Tours } from './pages/Tours';
@@ -52,43 +53,54 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 
 const App: React.FC = () => {
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
+  const handleLoadComplete = useCallback(() => setIsLoading(false), []);
 
   return (
-    <AuthProvider>
-      <LanguageProvider>
-        <DataProvider>
-          <AnimatePresence mode="wait">
-            <div key={location.pathname}>
-              <Routes location={location}>
-                {/* Public Routes */}
-                <Route path="/" element={<Layout><Home /></Layout>} />
-                <Route path="/tours" element={<Layout><Tours /></Layout>} />
-                <Route path="/tours/:id" element={<Layout><TourDetail /></Layout>} />
-                <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
-                <Route path="/about" element={<Layout><About /></Layout>} />
-                <Route path="/contact" element={<Layout><Contact /></Layout>} />
-                <Route path="/login" element={<Layout><Login /></Layout>} />
+    <>
+      <AnimatePresence>
+        {isLoading && <LoadingScreen onComplete={handleLoadComplete} />}
+      </AnimatePresence>
 
-                {/* Admin Routes */}
-                <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
-                    <Route index element={<Dashboard />} />
-                    <Route path="tours" element={<TourManager />} />
-                    <Route path="tours/new" element={<TourForm />} />
-                    <Route path="tours/edit/:id" element={<TourForm />} />
-                    <Route path="gallery" element={<GalleryManager />} />
-                    <Route path="map" element={<MapManager />} />
-                    <Route path="reviews" element={<ReviewManager />} />
-                    <Route path="settings" element={<Settings />} />
-                </Route>
+      {!isLoading && (
+        <AuthProvider>
+          <LanguageProvider>
+            <DataProvider>
+              <AnimatePresence mode="wait">
+                <div key={location.pathname}>
+                  <Routes location={location}>
+                    {/* Public Routes */}
+                    <Route path="/" element={<Layout><Home /></Layout>} />
+                    <Route path="/tours" element={<Layout><Tours /></Layout>} />
+                    <Route path="/tours/:id" element={<Layout><TourDetail /></Layout>} />
+                    <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
+                    <Route path="/about" element={<Layout><About /></Layout>} />
+                    <Route path="/contact" element={<Layout><Contact /></Layout>} />
+                    <Route path="/login" element={<Layout><Login /></Layout>} />
 
-                <Route path="*" element={<Layout><div className="h-screen flex items-center justify-center text-3xl font-serif">404 - Not Found</div></Layout>} />
-              </Routes>
-            </div>
-          </AnimatePresence>
-        </DataProvider>
-      </LanguageProvider>
-    </AuthProvider>
+                    {/* Admin Routes */}
+                    <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+                        <Route index element={<Dashboard />} />
+                        <Route path="tours" element={<TourManager />} />
+                        <Route path="tours/new" element={<TourForm />} />
+                        <Route path="tours/edit/:id" element={<TourForm />} />
+                        <Route path="gallery" element={<GalleryManager />} />
+                        <Route path="map" element={<MapManager />} />
+                        <Route path="reviews" element={<ReviewManager />} />
+                        <Route path="settings" element={<Settings />} />
+                    </Route>
+
+                    <Route path="*" element={<Layout><div className="h-screen flex items-center justify-center text-3xl font-serif">404 - Not Found</div></Layout>} />
+                  </Routes>
+                </div>
+              </AnimatePresence>
+            </DataProvider>
+          </LanguageProvider>
+        </AuthProvider>
+      )}
+    </>
   );
 };
 
 export default App;
+
